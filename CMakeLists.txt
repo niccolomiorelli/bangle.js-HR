@@ -4,8 +4,16 @@ project(heartrate)
 SET(CMAKE_CXX_FLAGS_DEBUG "-O0")
 SET(CMAKE_C_FLAGS_DEBUG "-O0")
 
+add_subdirectory(utils/bandpass_filter)
 add_subdirectory(algorithms/dummy)
+add_subdirectory(algorithms/espruino)
+add_subdirectory(algorithms/fft) 
+add_subdirectory(algorithms/autocorrelation) 
 
 add_executable(heartrate main.c)
 
+target_link_libraries(heartrate bandpass_filter)
 target_link_libraries(heartrate dummy)
+target_link_libraries(heartrate espruino)
+target_link_libraries(heartrate fft)
+target_link_libraries(heartrate autocorrelation)

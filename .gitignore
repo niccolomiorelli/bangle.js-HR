@@ -1,3 +1,4 @@
-.DS_Store
+INPUT_Dataset
+OUTPUT_Dataset
 *.csv
 build/

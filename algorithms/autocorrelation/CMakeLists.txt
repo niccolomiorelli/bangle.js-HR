@@ -1,0 +1,2 @@
+add_library(autocorrelation autocorrelationHeartRate.c)
+target_include_directories(autocorrelation PUBLIC include)

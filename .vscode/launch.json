@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+      {
+        "type": "cppvsdbg",
+        "request": "launch",
+        "name": "Launch Program",
+        "program": "${workspaceFolder}/build/Debug/${input:executableName}.exe",
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": true,
+        "preLaunchTask": "build",
+        "args": [
+          "${input:inputDirectory}",
+          "${input:outputDirectory}"
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "executableName",
+        "description": "Enter the name of the executable (e.g., heartrate)"
+      },
+      {
+        "type": "promptString",
+        "id": "inputDirectory",
+        "description": "Enter the input directory path"
+      },
+      {
+        "type": "promptString",
+        "id": "outputDirectory",
+        "description": "Enter the output directory path"
+      }
+    ]
+  }

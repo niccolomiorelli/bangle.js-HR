@@ -1,12 +1,18 @@
 #include <stdio.h>
-#include <dirent.h>
+//#include <dirent.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "types.h"
-
+#include "dirent.h" //If dirent.h is not pre included (in Microsoft it could not be included)
 #include "algorithms/dummy/dummyHeartRate.h"
+#include "algorithms/espruino/espruinoHeartRate.h"
+#include "algorithms/fft/fftHeartRate.h"
+#include "algorithms/autocorrelation/autocorrelationHeartRate.h"
+
+//Aggiungo
+#define algoN 4
 
 typedef struct Algo
 {
@@ -19,8 +25,9 @@ typedef struct Algo
 ////////////////////////////////////
 // START MODIFY HERE TO ADD NEW ALGO
 
+
 // all algorithms:
-const int algoN = 1; // change this to algo number!
+//const int algoN = 1; // change this to algo number!
 Algo algos[algoN];
 
 void createAlgos()
@@ -31,10 +38,34 @@ void createAlgos()
         .get_heartrate = dummy_heartrate,
         .total_time = 0,
     };
+
+    algos[1] = (Algo){
+        .name = "Espruino",
+        .init = espruino_heartrate_init,
+        .get_heartrate = espruino_heartrate,
+        .total_time = 0,
+    };
+
+    algos[2] = (Algo){
+        .name = "FFT",
+        .init = fft_heartrate_init,
+        .get_heartrate = fft_heartrate,
+        .total_time = 0,
+    };
+
+    algos[3] = (Algo){
+        .name = "Autocorrelation",
+        .init = autocorrelation_heartrate_init,
+        .get_heartrate = autocorrelation_heartrate,
+        .total_time = 0,
+    };
+
 }
 
 int main(int argc, char *argv[])
 {
+
+    
     if (argc < 3)
     {
         printf("Usage: %s <input directory> <output directory>\n", argv[0]);
@@ -89,7 +120,9 @@ int main(int argc, char *argv[])
         // open the output file
         // Construct the full path to the file
         char hr_filepath[256];
-        snprintf(hr_filepath, sizeof(hr_filepath), "%s/steps_%s.csv", argv[3], entry->d_name);
+        snprintf(hr_filepath, sizeof(hr_filepath), "%s/HR_%s", argv[2], entry->d_name);
+
+
         // Open the file for writing
         FILE *out_fp = fopen(hr_filepath, "w");
         if (out_fp == NULL)
@@ -115,6 +148,8 @@ int main(int argc, char *argv[])
         {
             // Process the line here:
             // printf("%s", line);
+            //printf("Test2\n");
+
 
             lineN++;
             // discard first line, used for header
@@ -126,7 +161,7 @@ int main(int argc, char *argv[])
                 int ms, ppg, accx, accy, accz;
 
                 // Parse integer values using sscanf
-                if (sscanf(line, "%d,%d,%d,%d,%d", &ms, &ppg, &accx, &accy, &accz) != 4)
+                if (sscanf(line, "%d,%d,%d,%d,%d", &ms, &ppg, &accx, &accy, &accz) != 5) //c'era un 4
                 {
                     printf("Error parsing line: %s\n", line);
                     continue;
@@ -138,7 +173,8 @@ int main(int argc, char *argv[])
                 // }
 
                 // Process the extracted integer values
-                // printf("Values: %d, %d, %d, %d, %d\n", ms, ppg, accx, accy, accy);
+                printf("Values: %d, %d, %d, %d, %d\n", ms, ppg, accx, accy, accz);
+                
 
                 int delta_ms = 0;
                 if (lineN > 2)

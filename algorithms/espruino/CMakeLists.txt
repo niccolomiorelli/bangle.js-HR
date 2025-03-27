@@ -1,0 +1,2 @@
+add_library(espruino espruinoHeartRate.c)
+target_include_directories(espruino PUBLIC include)

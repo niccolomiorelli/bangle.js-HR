@@ -1,0 +1,2 @@
+add_library(bandpass_filter bandpass_filter.c)
+target_include_directories(bandpass_filter PUBLIC include)

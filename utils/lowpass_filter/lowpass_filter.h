@@ -3,6 +3,8 @@
 
 #include "../../types.h"
 
+
+
 /*
 
 FIR filter designed with
@@ -37,3 +39,4 @@ void LPFilter_put(LPFilter *f, accel_big_t input);
 accel_big_t LPFilter_get(LPFilter *f);
 
 #endif
+
