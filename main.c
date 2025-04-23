@@ -10,9 +10,13 @@
 #include "algorithms/espruino/espruinoHeartRate.h"
 #include "algorithms/fft/fftHeartRate.h"
 #include "algorithms/autocorrelation/autocorrelationHeartRate.h"
+#include "algorithms/oxford/oxfordHeartRate.h"
+#include "algorithms/pantompkins/pantompkinsHeartRate.h"
+#include "algorithms/autocorrelation2/autocorrelation2HeartRate.h"
+#include "algorithms/algo1/algo1HeartRate.h"
 
 //Aggiungo
-#define algoN 4
+#define algoN 8
 
 typedef struct Algo
 {
@@ -59,6 +63,34 @@ void createAlgos()
         .get_heartrate = autocorrelation_heartrate,
         .total_time = 0,
     };
+
+    algos[4] = (Algo){
+        .name = "Oxford",
+        .init = oxford_heartrate_init,
+        .get_heartrate = oxford_heartrate,
+        .total_time = 0,
+    };
+
+    algos[5] = (Algo){
+        .name = "PanTompkins",
+        .init = pantompkins_heartrate_init,
+        .get_heartrate = pantompkins_heartrate,
+        .total_time = 0,
+    };
+    algos[6] = (Algo){
+        .name = "Autocorrelation2",
+        .init = autocorrelation2_heartrate_init,
+        .get_heartrate = autocorrelation2_heartrate,
+        .total_time = 0,
+    };
+    algos[7] = (Algo){
+        .name = "Algo1",
+        .init = algo1_heartrate_init,
+        .get_heartrate = algo1_heartrate,
+        .total_time = 0,
+    };
+
+    
 
 }
 
@@ -174,6 +206,7 @@ int main(int argc, char *argv[])
 
                 // Process the extracted integer values
                 printf("Values: %d, %d, %d, %d, %d\n", ms, ppg, accx, accy, accz);
+                printf("Debug688\n");
                 
 
                 int delta_ms = 0;
@@ -182,6 +215,7 @@ int main(int argc, char *argv[])
 
                 fprintf(out_fp, "%d,", ms);
 
+                
                 // call all algorithms here:
                 for (int i = 0; i < algoN; i++)
                 {

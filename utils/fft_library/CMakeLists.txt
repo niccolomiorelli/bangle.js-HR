@@ -1,0 +1,2 @@
+add_library(fft_library fft_library.c)
+target_include_directories(fft_library PUBLIC include)

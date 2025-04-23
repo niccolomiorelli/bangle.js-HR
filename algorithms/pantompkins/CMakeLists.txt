@@ -1,0 +1,2 @@
+add_library(pantompkins pantompkinsHeartRate.c)
+target_include_directories(pantompkins PUBLIC include)

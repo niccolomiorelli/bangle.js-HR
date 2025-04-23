@@ -28,7 +28,7 @@
 #include "../../types.h"
 
 #define SAMPLING_RATE 25  // 25 hz sampling rate
-#define NUM_TUPLES 125    // 5 seconds worth of data
+#define NUM_TUPLES 128 //125    // 5 seconds worth of data
 #define WINDOW_LENGTH (NUM_TUPLES / SAMPLING_RATE) // window length in seconds: 5
 
 static int autocorrelation_HR; 
@@ -39,7 +39,7 @@ static int autocorrelation_HR_temp = 0;
 //static long autocorr_buffer_index = 0;
 
 
-#define NUM_AUTOCORR_LAGS 51      // number of lags to calculate for autocorrelation. At a minimum heart rate of 30 bpm -> 0.5 beat/s -> 2 / sampling_period(0.04s) = 2s * 25Hz = 50 lags 
+#define NUM_AUTOCORR_LAGS  51      // number of lags to calculate for autocorrelation. At a minimum heart rate of 30 bpm -> 0.5 beat/s -> 2 / sampling_period(0.04s) = 2s * 25Hz = 50 lags 
 #define FIRST_AUTOCORR_PEAK_LAG 8 // corresponds to the first feasible autocorrelation lag -> at a max heart rate of 3 beats /s -> 0.333s / sampling_period(0.04s) = 8.25 -> 8 lags
 
 // Vrification logic
@@ -47,7 +47,7 @@ static int autocorrelation_HR_temp = 0;
 #define AUTOCORR_MIN_HALF_LEN 2             // this is the min number of points the autocorrelation peak should be on either side of the peak
 
 //DUMP FILE: used to print the signal in .csv files
-//#define DUMP_FILE 
+// #define DUMP_FILE 
 #ifdef DUMP_FILE
 static int autocorr_passes = 0; // counter of how many times the autocorr has been called
 #define DUMP_REMOVED_MEAN_FILE_NAME "removed_mean.csv"

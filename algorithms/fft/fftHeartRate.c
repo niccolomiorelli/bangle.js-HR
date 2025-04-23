@@ -2,10 +2,11 @@
 * FFT ALGORITHM
 * ----------------------------------------------------
 * Description:
-* The algorithm takes overlapping windows of 10.24s (256 samples @ 25 Hz) with step of 2.56s (64 samples @ 25Hz) and applies the Fast Fourier Transform.
+* The algorithm takes overlapping windows of 5.12s (128 samples @ 25 Hz) with step of 2.56s (64 samples @ 25Hz) and applies the Fast Fourier Transform.
 * To change the window length -> WINDOW_LEN. To change the overlapping -> WINDOW_STEP   
-* The algorithm searches the peak of the Fourier transform, limiting the search between the indexes [5, 43],
-* corresponding to the range of HR [30bpm, 258 bpm] or [0.5Hz, 4.3Hz] -> To change this parameters: MIN_FREQ_FFT_I, MAX_FREQ_FFT_I
+* Note: if the WINDOW_len is changed, the MIN_FREQ_FFT_I and MAX_FREQ_FFT_I must be changed too.
+* The algorithm searches the peak of the Fourier transform, limiting the search between the indexes [3, 22],
+* corresponding to the range of HR [35bpm, 246 bpm] or [0.58Hz, 4.29Hz] -> To change this parameters: MIN_FREQ_FFT_I, MAX_FREQ_FFT_I. Formula: freq = i*f_sample/N
 * The algorithm performs a median filter on the last 8 output -> HRM_HIST_LEN and HRM_MEDIAN_LEN
 * 
 * The algorithm inspired by the algorithm in "https://github.com/VirginiaSek/Algo" used for step counting from accelerometer signal.
@@ -20,16 +21,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #include "../../utils/bandpass_filter/bandpass_filter.h"
 #include "../../types.h"
 
 #include "fftHeartRate.h"
 
-#define WINDOW_LEN 256  // sliding window length, better if power of 2 (if we want to switch to FFT), 64 samples = 2.56s , 128 samples = 5.12 s, 256 samples = 10.24s
+#define WINDOW_LEN 128  // sliding window length, better if power of 2 (if we want to switch to FFT), 64 samples = 2.56s , 128 samples = 5.12 s, 256 samples = 10.24s
 #define WINDOW_STEP 64 // step of the sliding window, 64 samples = 2.56s
 #define SAMPLING_FREQ 25 // sampling frequency of the PPG signal
-#define MIN_FREQ_FFT_I 5 // index of the FFT corresponding to the minimum heart rate -> 5: corresponds to 30 bpm
-#define MAX_FREQ_FFT_I 43 // index of the FFT corresponding to the maximum heart rate -> 43: correspnds to 258 bpm
+#define MIN_FREQ_FFT_I 3 // index of the FFT corresponding to the minimum heart rate -> 3: corresponds to 35 bpm (if N=256  -> 5 corresponds to 30bpm)
+#define MAX_FREQ_FFT_I 22 // index of the FFT corresponding to the maximum heart rate -> 22: correspnds to 246 bpm (if N=256  -> 43 corresponds to 258bpm)
 #define M_PI 3.14159265358979323846 // pi
 
 // Buffers and counters
@@ -39,7 +41,7 @@ static int HR = 0;
 static int samples_since_last_HR = 0;
 
 //DUMP FILE: to save .csv files of FFT signals for each window
-#define DUMP_FILE 
+//#define DUMP_FILE 
 #ifdef DUMP_FILE
 static int fft_passes = 0; // counter of how many times the autocorr has been called
 #define DUMP_FFT_FILE_NAME "fft"
@@ -119,7 +121,7 @@ void transform(complex_double *f, int N)
         W[i].real = cos(-2. * M_PI * i / N);
         W[i].imag = sin(-2. * M_PI * i / N);
     }
-    /*
+    /* //DA COMMENTARE QUESTA PARTE
     int n = 1;
     int a = N / 2;
     for (int j = 0; j < my_log2(N); j++)
@@ -141,7 +143,7 @@ void transform(complex_double *f, int N)
         n *= 2;
         a = a / 2;
     }
-    */
+    */ //FINE COMMENTO DI QUESTA PARTE
    // It works with this:
    int step = 1;
     while (step < N) {

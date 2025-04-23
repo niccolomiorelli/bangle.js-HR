@@ -1,21 +1,25 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-	  {
-		"type": "shell",
-		"label": "build",
-		"command": "cmake",
-		"args": [
-		  "--build",
-		  "${workspaceFolder}/build",
-		  //"--target",
-		  //"ALL_BUILD"
-		],
-		"group": {
-		  "kind": "build",
-		  "isDefault": true
-		},
-		"problemMatcher": ["$gcc"]
-	  }
-	]
-  }
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Build All Projects",
+            "type": "shell",
+            "command": "cmake --build build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build all projects in the build directory."
+        },
+        {
+            "label": "Run heartrate.exe",
+            "type": "shell",
+            "command": ".\\build\\Debug\\heartrate.exe INPUT_Dataset OUTPUT_Dataset",
+            "group": "test",
+            "dependsOn": "CMake: Build All Projects",
+            "problemMatcher": [],
+            "detail": "Run the heartrate.exe program with specified input and output datasets."
+        }
+    ]
+}
