@@ -385,7 +385,7 @@ int pantompkins_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, acc
     if ((integral[current-1] >= threshold_i1 && peak)) 
     {
         // There's a 200ms latency. If the new peak respects this condition, we can keep testing.
-        if (sample > lastQRS + FS/5)
+        if (sample > lastQRS + FS*0.3)
         {
             // If it respects the 200ms latency, but it doesn't respect the 360ms latency, we check the slope.
             if (sample <= lastQRS + (long unsigned int)(0.36*FS))

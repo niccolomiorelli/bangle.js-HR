@@ -16,13 +16,13 @@
 
 // time in ms between which to discard steps
 // 3 steps /s is a reasonable maximum step rate //300 for step count
-#define TIME_THRE 500
+#define TIME_THRE 300
 
 // skip filtering step
 // #define SKIP_FILTER
 
 // use this to allow dumping each stage on file, useful for debugging
-// #define DUMP_FILE
+#define DUMP_FILE
 #ifdef DUMP_FILE
 #define DUMP_MAGNITUDE_FILE_NAME "magnitude.csv"
 //#define DUMP_INTERPOLATED_FILE_NAME "interpolated.csv"

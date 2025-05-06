@@ -30,7 +30,7 @@
 #define WINDOW_LEN 128  // sliding window length, better if power of 2 (if we want to switch to FFT), 64 samples = 2.56s , 128 samples = 5.12 s, 256 samples = 10.24s
 #define WINDOW_STEP 64 // step of the sliding window, 64 samples = 2.56s
 #define SAMPLING_FREQ 25 // sampling frequency of the PPG signal
-#define MIN_FREQ_FFT_I 3 // index of the FFT corresponding to the minimum heart rate -> 3: corresponds to 35 bpm (if N=256  -> 5 corresponds to 30bpm)
+#define MIN_FREQ_FFT_I 4 // index of the FFT corresponding to the minimum heart rate -> 3: corresponds to 35 bpm (if N=256  -> 5 corresponds to 30bpm)
 #define MAX_FREQ_FFT_I 22 // index of the FFT corresponding to the maximum heart rate -> 22: correspnds to 246 bpm (if N=256  -> 43 corresponds to 258bpm)
 #define M_PI 3.14159265358979323846 // pi
 
@@ -303,6 +303,7 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
             fclose(fftFile);
         }
 #endif
+        
         //For the median filter
         //Saving the results in a buffer to implement a moving average or median
         fft_results[fft_results_index] = HR; 
@@ -337,7 +338,8 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
         }
         if (n) {
             HR = (int)(sumBPM/n);
-        } 
+        }
+        
     }
 
     // Return the HR*10

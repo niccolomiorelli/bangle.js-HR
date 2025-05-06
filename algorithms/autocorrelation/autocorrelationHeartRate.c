@@ -358,6 +358,7 @@ int autocorrelation_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx,
         if (n) {
             autocorrelation_HR = (int)(sumBPM/n);
         } 
+        
     }
     printf("HR: %d\n", autocorrelation_HR);
     return autocorrelation_HR; 

@@ -148,7 +148,7 @@ void detectionStage(void)
         //float threshold_float = -std*1.3;
         if (count > 15)
         {
-            if (((float)dataPoint.magnitude - mean) < threshold_float)
+            if (((float)dataPoint.magnitude - mean) > threshold_float)
             {
                 //I have to do another conditioin: for the steep derivative
                 data_point_t dataPoint2;
@@ -169,13 +169,21 @@ void detectionStage(void)
                     der = lasts[0] - lasts[1];
                 }
             
+                
                 //POSITIVE THRESHOLD
+                /*
                 //Second condition on the derivative:
                 if(der > THRESHOLD_DER){
                     // This is a peak:
                     ring_buffer_queue(outBuff, dataPoint);
                     (*nextStage)();
                 }
+                */
+                
+               //Without the threshold on the derivative:
+               
+                ring_buffer_queue(outBuff, dataPoint);
+                (*nextStage)();
                 
 
                //NRGATIVE THRESHOLD
