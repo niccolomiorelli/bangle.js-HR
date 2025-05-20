@@ -15,7 +15,7 @@
 
 #define M_PI 3.14159265358979323846 // pi
 #define WINDOW_LEN_MAX 512
-#define WINDOW_LEN 256
+#define WINDOW_LEN 128
 
 
 int buffer_index_plus_fftLib(int buffer_next_i, int plus, int max)

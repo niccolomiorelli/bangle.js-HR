@@ -1,0 +1,2 @@
+add_library(adaptive_filter adaptive_filter.c)
+target_include_directories(adaptive_filter PUBLIC include)
