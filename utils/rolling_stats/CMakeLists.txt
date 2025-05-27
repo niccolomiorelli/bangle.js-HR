@@ -1,0 +1,2 @@
+add_library(rolling_stats rolling_stats.c)
+target_include_directories(rolling_stats PUBLIC include)

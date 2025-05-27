@@ -8,15 +8,15 @@
 
 typedef struct AdaptFilter
 {
-  float x[ORDER]; //Buffer containing acc
-  float weights[ORDER];
-  float d;
+  double x[ORDER]; //Buffer containing acc
+  double weights[ORDER];
+  double d;
   unsigned int last_index;
 } AdaptFilter;
 
 void AdaptFilter_init(AdaptFilter *f);
-void AdaptFilter_put(AdaptFilter *f, float x, float d);
-float AdaptFilter_get(AdaptFilter *f);
+void AdaptFilter_put(AdaptFilter *f, double x, double d);
+double AdaptFilter_get(AdaptFilter *f);
 
 #endif
 

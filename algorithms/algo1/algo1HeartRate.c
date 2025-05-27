@@ -39,7 +39,7 @@ static int HR = 0;
 static int samples_since_last_HR = 0;
 
 //DUMP FILE: to save .csv files of FFT signals for each window
-// #define DUMP_FILE 
+//#define DUMP_FILE 
 #ifdef DUMP_FILE
 static int fft_passes = 0; // counter of how many times the autocorr has been called
 #define DUMP_FFT_FILE_NAME "fft"
@@ -72,12 +72,12 @@ static complex_number fft_input_acc[WINDOW_LEN];
 
 // For mean and std
 int8_t count  = 0;
-float mean_ppg = 0;
-float variance_ppg = 0;
-float std_ppg = 0;
-float mean_acc[4] = {0};
-float variance_acc[4] = {0};
-float std_acc[4] = {0};
+double mean_ppg = 0;
+double variance_ppg = 0;
+double std_ppg = 0;
+double mean_acc[4] = {0};
+double variance_acc[4] = {0};
+double std_acc[4] = {0};
 /// Initialise step counting
 void algo1_heartrate_init()
 {
@@ -143,47 +143,47 @@ int algo1_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t a
 
     
     // Computing the mean and std
-    float alpha = 0.001;
+    double alpha = 0.001;
     count++;
     if (count ==1){
-        mean_ppg = (float)ppg_filtered;
+        mean_ppg = (double)ppg_filtered;
         variance_ppg = 0.0;
         std_ppg = 0.0;
 
         for(int i=0;i<4;i++){
-            mean_acc[i] = (float)acc_filtered[i];
+            mean_acc[i] = (double)acc_filtered[i];
             variance_acc[i] = 0.0;
             std_acc[i] = 0.0;
         }
         
     }
     else{
-        mean_ppg = (alpha*(float)ppg_filtered + (1-alpha)*mean_ppg);
-        variance_ppg = (alpha*((float)ppg_filtered - mean_ppg)*((float)ppg_filtered -mean_ppg) + (1-alpha)*variance_ppg);
+        mean_ppg = (alpha*(double)ppg_filtered + (1-alpha)*mean_ppg);
+        variance_ppg = (alpha*((double)ppg_filtered - mean_ppg)*((double)ppg_filtered -mean_ppg) + (1-alpha)*variance_ppg);
         std_ppg = (sqrt(variance_ppg));
 
         for(int i=0;i<4;i++){
-            mean_acc[i] = (alpha*(float)acc_filtered[i] + (1-alpha)*mean_acc[i]);
-            variance_acc[i] = (alpha*((float)acc_filtered[i] - mean_acc[i])*((float)acc_filtered[i] - mean_acc[i]) + (1-alpha)*variance_acc[i]);
+            mean_acc[i] = (alpha*(double)acc_filtered[i] + (1-alpha)*mean_acc[i]);
+            variance_acc[i] = (alpha*((double)acc_filtered[i] - mean_acc[i])*((double)acc_filtered[i] - mean_acc[i]) + (1-alpha)*variance_acc[i]);
             std_acc[i] = (sqrt(variance_acc[i]));
         }
         
         count=7;
     }
     
-    float ppg_standardized;
-    float acc_standardized[4];
+    double ppg_standardized;
+    double acc_standardized[4];
     //Standardization of the signal:
     if (std_ppg != 0.0){
-        ppg_standardized = (((float)ppg_filtered - mean_ppg)/(std_ppg));
+        ppg_standardized = (((double)ppg_filtered - mean_ppg)/(std_ppg));
     } else {
-        ppg_standardized = (((float)ppg_filtered - mean_ppg)/(1.0));
+        ppg_standardized = (((double)ppg_filtered - mean_ppg)/(1.0));
     }
     for(int i =0;i<4;i++){
         if (std_acc[i] != 0.0){
-            acc_standardized[i] = (((float)acc_filtered[i] - mean_acc[i])/(std_acc[i]));
+            acc_standardized[i] = (((double)acc_filtered[i] - mean_acc[i])/(std_acc[i]));
         } else {
-            acc_standardized[i] = (((float)acc_filtered[i] - mean_acc[i])/(1.0));
+            acc_standardized[i] = (((double)acc_filtered[i] - mean_acc[i])/(1.0));
         }
     }
     
@@ -202,13 +202,13 @@ int algo1_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t a
     //Adaptive Filter - Three stages
     //1.
     AdaptFilter_put(&adaptFilter1, acc_standardized[1], ppg_standardized);
-    float e1 = AdaptFilter_get(&adaptFilter1);
+    double e1 = AdaptFilter_get(&adaptFilter1);
     //2.
     AdaptFilter_put(&adaptFilter2, acc_standardized[2], e1);
-    float e2 = AdaptFilter_get(&adaptFilter2);
+    double e2 = AdaptFilter_get(&adaptFilter2);
     //3.
     AdaptFilter_put(&adaptFilter3, acc_standardized[3], e2);
-    float ppg_adaptfilt = AdaptFilter_get(&adaptFilter3);
+    double ppg_adaptfilt = AdaptFilter_get(&adaptFilter3);
 
 
 
@@ -220,7 +220,7 @@ int algo1_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t a
 #ifdef DUMP_FILE
         if (algo1File)
         {
-            if (!fprintf(algo1File, "%f, %f, %f, %f, %f, %f, %f, %f, %f,%f, %f, %f, %f\n", (float)ppg_filtered, ppg_standardized, mean_ppg, std_ppg, (float)acc_magnitude, acc_standardized[0],mean_acc[0],std_acc[0],ppg_adaptfilt,(float)acc_filtered[0], (float)acc_filtered[1], (float)acc_filtered[2], (float)acc_filtered[3]))
+            if (!fprintf(algo1File, "%f, %f, %f, %f, %f, %f, %f, %f, %f,%f, %f, %f, %f, %f, %f, %f, %f\n", (double)ppg_filtered, ppg_standardized, mean_ppg, std_ppg, (double)acc_magnitude, (double)acc_filtered[0],mean_acc[0],std_acc[0],ppg_adaptfilt,acc_standardized[0], (double)acc_filtered[1], (double)acc_filtered[2], (double)acc_filtered[3],(double)ppg,(double)accx, (double)accy, (double)accz))
                 puts("error writing file");
             fflush(algo1File);
         }

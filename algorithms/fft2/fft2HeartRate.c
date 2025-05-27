@@ -23,34 +23,42 @@
 
 
 #include "../../utils/bandpass_filter/bandpass_filter.h"
+#include "../../utils/rolling_stats/rolling_stats.h"
 #include "../../types.h"
+#include "../../utils/fft_library/fft_library.h"
 
-#include "fftHeartRate.h"
+#include "fft2HeartRate.h"
 
 #define WINDOW_LEN 128  // sliding window length, better if power of 2 (if we want to switch to FFT), 64 samples = 2.56s , 128 samples = 5.12 s, 256 samples = 10.24s
 #define WINDOW_STEP 64 // step of the sliding window, 64 samples = 2.56s
 #define SAMPLING_FREQ 25 // sampling frequency of the PPG signal
 //In case of no padding:
-#define MIN_FREQ_FFT_I 4 // index of the FFT corresponding to the minimum heart rate -> 3: corresponds to 35 bpm (if N=256  -> 5 corresponds to 30bpm)
-#define MAX_FREQ_FFT_I 18 // index of the FFT corresponding to the maximum heart rate -> 22: correspnds to 246 bpm (if N=256  -> 43 corresponds to 258bpm)
+//#define MIN_FREQ_FFT_I 4 // index of the FFT corresponding to the minimum heart rate -> 4: corresponds to 46 bpm (if N=256  -> 5 corresponds to 30bpm)
+//#define MAX_FREQ_FFT_I 18 // index of the FFT corresponding to the maximum heart rate -> 18: correspnds to 210 bpm (if N=256  -> 43 corresponds to 258bpm)
 //In case of padding:
+#define MIN_FREQ_FFT_I 32 // 32-> with N_PAD = 1024 -> 46 bpm
+#define MAX_FREQ_FFT_I 144 // 144-> with N_PAD = 1024 -> 210 bpm
 
 
 #define M_PI 3.14159265358979323846 // pi
 
+#define N_PAD 1024 //Length of the window after padding
+
 
 // Buffers and counters
-static ppg_t signal_buffer[WINDOW_LEN] = {0};
+static float signal_buffer[WINDOW_LEN] = {0};
 static int signal_buffer_next_i = 0;
 static int HR = 0; 
 static int samples_since_last_HR = 0;
 
 //DUMP FILE: to save .csv files of FFT signals for each window
-//#define DUMP_FILE 
+#define DUMP_FILE 
 #ifdef DUMP_FILE
 static int fft_passes = 0; // counter of how many times the autocorr has been called
-#define DUMP_FFT_FILE_NAME "fft"
-static FILE *fftFile;
+#define DUMP_FFT2_FILE_NAME "fft2"
+static FILE *fft2File;
+#define DUMP_ROLL_STATS_FFT2_FILE_NAME "roll_stats_fft2.csv"
+static FILE *roll_stats_fft2File;
 #endif
 
 //For the median filter
@@ -62,6 +70,8 @@ static int fft_results_index = 0;
 
 //Band Pass Filter
 static BPFilter bpFilter;
+//Standardization
+static Stats stats_ppg;
 
 // Complex number structure
 typedef struct
@@ -70,138 +80,46 @@ typedef struct
     double imag;
 } complex_double;
 
+double windowed_signal_in[WINDOW_LEN]; //For the windowing
+double windowed_signal_out[WINDOW_LEN]; 
 static complex_double fft_input[WINDOW_LEN];
+static complex_double fft_input_padded[N_PAD];
 
 
 
-static int buffer_index_plus(int buffer_next_i, int plus, int max)
-{
-    return (buffer_next_i + plus) % max;
-}
-
-
-
-
-// Log base 2 function: Compute del log2 of N, returning the max exponent k such that 2^k <= N
-int my_log2(int N)
-{
-    int k = N, i = 0;
-    while (k)
-    {
-        k >>= 1; //Shift by 1 to divide by 2
-        i++;
+// Crea la finestra di Hann
+void apply_hann_window(double *input, double *windowed_output, int len) {
+    for (int n = 0; n < len; n++) {
+        double hann = 0.5 * (1.0 - cos(2.0 * M_PI * n / (len - 1)));
+        windowed_output[n] = input[n] * hann;
     }
-    return i - 1;
 }
 
-// Function to calculate the reverse index based on bit permutation: bit reversal operation
-int reverse(int N, int n)
-{
-    int log2N = my_log2(N);
-    int j, p = 0;
-    for (j = 1; j <= log2N; j++)
-    {
-        if (n & (1 << (log2N - j)))
-            p |= 1 << (j - 1);
-    }
-    return p;
-}
 
-// Function to reorder the array based on the reverse index
-void ordina(complex_double *f1, int N)
-{
-    complex_double f2[WINDOW_LEN];
-    for (int i = 0; i < N; i++)
-        f2[i] = f1[reverse(N, i)];
-    for (int j = 0; j < N; j++)
-        f1[j] = f2[j];
-}
-
-void transform(complex_double *f, int N)
-{
-    ordina(f, N); // First reorder the array
-    complex_double *W;
-    W = (complex_double *)malloc(N / 2 * sizeof(complex_double));
-    W[1].real = cos(-2. * M_PI / N);
-    W[1].imag = sin(-2. * M_PI / N);
-    W[0].real = 1;
-    W[0].imag = 0;
-    for (int i = 2; i < N / 2; i++)
-    {
-        W[i].real = cos(-2. * M_PI * i / N);
-        W[i].imag = sin(-2. * M_PI * i / N);
-    }
-    /* //DA COMMENTARE QUESTA PARTE
-    int n = 1;
-    int a = N / 2;
-    for (int j = 0; j < my_log2(N); j++)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            if (!(i & n))
-            {
-                complex_double temp = f[i];
-                complex_double Temp = W[(i * a) % (n * a)];
-                Temp.real *= f[i + n].real - f[i].real;
-                Temp.imag *= f[i + n].imag - f[i].imag;
-                f[i].real += Temp.real;
-                f[i].imag += Temp.imag;
-                f[i + n].real = temp.real - Temp.real;
-                f[i + n].imag = temp.imag - Temp.imag;
-            }
+//Padding function: it adds zeros to the input, creating another complex_double vector, so I have the two input ready to be tested
+void zero_pad(complex_double *in, complex_double *out, int N, int N_pad) {
+    for (int i = 0; i < N_pad; i++) {
+        if (i < N) {
+            out[i] = in[i];
+        } else {
+            out[i].real = 0.0;
+            out[i].imag = 0.0;
         }
-        n *= 2;
-        a = a / 2;
-    }
-    */ //FINE COMMENTO DI QUESTA PARTE
-   // It works with this:
-   int step = 1;
-    while (step < N) {
-        int jump = step * 2;
-        for (int i = 0; i < N; i += jump) {
-            for (int j = 0; j < step; j++) {
-                int index1 = i + j;
-                int index2 = i + j + step;
-                int W_index = (j * (N / jump)) % (N / 2);
-                
-                complex_double temp;
-                temp.real = W[W_index].real * f[index2].real - W[W_index].imag * f[index2].imag;
-                temp.imag = W[W_index].real * f[index2].imag + W[W_index].imag * f[index2].real;
-                
-                f[index2].real = f[index1].real - temp.real;
-                f[index2].imag = f[index1].imag - temp.imag;
-                f[index1].real += temp.real;
-                f[index1].imag += temp.imag;
-            }
-        }
-        step *= 2;
-    }
-    //
-    free(W);
-}
-
-// FFT function
-void FFT(complex_double *f, int N, double d)
-{
-    transform(f, N);
-    // Scale the FFT result by multiplying each value by the step size 'd'
-    for (int i = 0; i < N; i++)
-    {
-        f[i].real *= d;
-        f[i].imag *= d;
     }
 }
 
 
 /// Initialise step counting
-void fft_heartrate_init()
+void fft2_heartrate_init()
 {
     HR = 0;
     samples_since_last_HR = 0;
     // Initialize the signal buffer to zeros
     for (int i = 0; i < WINDOW_LEN; i++)
     {
-        signal_buffer[i] = 0;
+        signal_buffer[i] = 0.0;
+        windowed_signal_in[i] = 0.0;
+        windowed_signal_out[i] = 0.0;
     }
     signal_buffer_next_i = 0;
 
@@ -213,22 +131,44 @@ void fft_heartrate_init()
 
     BPFilter_init(&bpFilter);
 
+    rolling_stats_reset(&stats_ppg);
+
 #ifdef DUMP_FILE
     fft_passes = 0;
+    roll_stats_fft2File = fopen(DUMP_ROLL_STATS_FFT2_FILE_NAME, "w+");
 #endif
+
 
 }
 
-int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+int fft2_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
 
       
     // Applying the filter
     BPFilter_put(&bpFilter, ppg);
     ppg_t ppg_filtered = BPFilter_get(&bpFilter);
 
+    //Standardization
+    rolling_stats_addValue((float)ppg_filtered, &stats_ppg);
+    float mean_ppg = rolling_stats_get_mean(&stats_ppg);
+    float var_ppg = rolling_stats_get_variance(&stats_ppg);
+    float std_ppg = rolling_stats_get_standard_deviation(&stats_ppg);
+    if (std_ppg == 0.0) {
+        std_ppg = 1.0; // Avoid division by zero
+    }
+    float ppg_standardized = (float)(ppg_filtered - mean_ppg) / std_ppg;
+
+#ifdef DUMP_FILE
+        if (roll_stats_fft2File)
+        {
+            if (!fprintf(roll_stats_fft2File, "%d, %f, %f, %f, %f\n", ppg_filtered, ppg_standardized, mean_ppg, var_ppg, std_ppg ))
+                puts("error writing file");
+            fflush(roll_stats_fft2File);
+        }
+#endif
 
     // Add the magnitude to the circular buffer
-    signal_buffer[signal_buffer_next_i] = ppg_filtered;
+    signal_buffer[signal_buffer_next_i] = ppg_standardized;
     signal_buffer_next_i = (signal_buffer_next_i + 1) % WINDOW_LEN;
 
     samples_since_last_HR++;
@@ -239,29 +179,37 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
 
 #ifdef DUMP_FILE
         fft_passes++;
-        char fftFileName[100] = DUMP_FFT_FILE_NAME;
+        char fft2FileName[100] = DUMP_FFT2_FILE_NAME;
         char idxstr[5];
         sprintf(idxstr, "%d", fft_passes);
-        strcat(fftFileName, idxstr);
-        strcat(fftFileName, ".csv");
-        fftFile = fopen(fftFileName, "w+");
+        strcat(fft2FileName, idxstr);
+        strcat(fft2FileName, ".csv");
+        fft2File = fopen(fft2FileName, "w+");
 #endif
 
         
         samples_since_last_HR = 0;
 
         // Prepare the data for FFT
-        for (int i = 0; i < WINDOW_LEN; i++)
-        {
-            int buffer_i = buffer_index_plus(signal_buffer_next_i, i, WINDOW_LEN);
-            fft_input[i].real = (double)signal_buffer[buffer_i];
+        for (int i = 0; i < WINDOW_LEN; i++) {
+            int buffer_i = buffer_index_plus_fftLib(signal_buffer_next_i, i, WINDOW_LEN);
+            windowed_signal_in[i] = (double)signal_buffer[buffer_i];
+        }
+
+        // Applica la finestra di Hann
+        apply_hann_window(windowed_signal_in, windowed_signal_out, WINDOW_LEN);
+
+        // Copia nel vettore complesso per la FFT
+        for (int i = 0; i < WINDOW_LEN; i++) {
+            fft_input[i].real = windowed_signal_out[i];
             fft_input[i].imag = 0.0;
         }
+
         
-        
+        zero_pad(fft_input, fft_input_padded, WINDOW_LEN, N_PAD);
 
         // Perform the FFT
-        FFT(fft_input, WINDOW_LEN, 1.0); //NB: If I perform the padding, the index are different
+        FFT_fftLib(fft_input_padded, N_PAD, 1.0); //NB: If I perform the padding, the index are different
 
         // Find the dominant frequency
         double max_fft_magnitude = 0.0;
@@ -283,13 +231,14 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
             }
             */
             //Without doing the sqrt()
-            fft_magnitude[i] = fft_input[i].real * fft_input[i].real + fft_input[i].imag * fft_input[i].imag;
+            fft_magnitude[i] = fft_input_padded[i].real * fft_input_padded[i].real + fft_input_padded[i].imag * fft_input_padded[i].imag;
 
             //Write on the file
 #ifdef DUMP_FILE
-            if (fftFile)
+            if (fft2File)
             {
-                fprintf(fftFile, "%d, %f\n", i, fft_magnitude[i]);
+                fprintf(fft2File, "%f, %f\n", (float)i , fft_magnitude[i]);
+                //fprintf(fft2File, "%f, %f, %f\n", (float)i , fft_input_padded[i].real, fft_input_padded[i].imag); 
             }
 #endif
         }
@@ -304,16 +253,16 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
         }
 
         // Calculate the dominant frequency in Hz
-        double dominant_freq = (double)dominant_freq_index * SAMPLING_FREQ / WINDOW_LEN;
+        double dominant_freq = (double)dominant_freq_index * SAMPLING_FREQ / N_PAD;
 
         // Calculate the number of steps based on the dominant frequency
         HR  = dominant_freq * 60;
 
 #ifdef DUMP_FILE
-        if (fftFile)
+        if (fft2File)
         {
-            fflush(fftFile);
-            fclose(fftFile);
+            fflush(fft2File);
+            fclose(fft2File);
         }
 #endif
         
@@ -356,6 +305,7 @@ int fft_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t acc
         
     }
 
+    
     // Return the HR*10
     return (int)(HR*10);
 

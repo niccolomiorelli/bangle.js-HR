@@ -16,7 +16,7 @@
 #define M_PI 3.14159265358979323846 // pi
 #define WINDOW_LEN_MAX 512
 #define WINDOW_LEN 128
-
+#define N_PAD 1024
 
 int buffer_index_plus_fftLib(int buffer_next_i, int plus, int max)
 {
@@ -64,11 +64,23 @@ void ordina_fftLib(complex_number *f1, int N)
 
 void ordina_fftLib(complex_number *f1, int N)
 {
-    complex_number f2[WINDOW_LEN];
-    for (int i = 0; i < N; i++)
-        f2[i] = f1[reverse_fftLib(N, i)];
-    for (int j = 0; j < N; j++)
-        f1[j] = f2[j];
+    if (N == WINDOW_LEN){
+        complex_number f2[WINDOW_LEN];
+        for (int i = 0; i < N; i++)
+            f2[i] = f1[reverse_fftLib(N, i)];
+        for (int j = 0; j < N; j++)
+            f1[j] = f2[j];
+    } 
+    else if (N == N_PAD) {
+        complex_number f2[N_PAD];
+        for (int i = 0; i < N; i++)
+            f2[i] = f1[reverse_fftLib(N, i)];
+        for (int j = 0; j < N; j++)
+            f1[j] = f2[j];
+    }
+    else {
+        printf("Error: ordina_fftLib called with unsupported N value: %d\n", N);
+    }
 }
 
 void transform_fftLib(complex_number *f, int N)

@@ -14,9 +14,10 @@
 #include "algorithms/pantompkins/pantompkinsHeartRate.h"
 #include "algorithms/autocorrelation2/autocorrelation2HeartRate.h"
 #include "algorithms/algo1/algo1HeartRate.h"
+#include "algorithms/fft2/fft2HeartRate.h"
 
 //Aggiungo
-#define algoN 8
+#define algoN 9
 
 typedef struct Algo
 {
@@ -87,6 +88,12 @@ void createAlgos()
         .name = "Algo1",
         .init = algo1_heartrate_init,
         .get_heartrate = algo1_heartrate,
+        .total_time = 0,
+    };
+    algos[8] = (Algo){
+        .name = "FFT2",
+        .init = fft2_heartrate_init,
+        .get_heartrate = fft2_heartrate,
         .total_time = 0,
     };
 

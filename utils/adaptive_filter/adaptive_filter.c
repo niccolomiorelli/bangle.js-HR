@@ -16,15 +16,25 @@ void AdaptFilter_init(AdaptFilter *f)
         f->weights[i] = 0.0;
     }
     f->d = 0.0;
-    f->last_index = 0;
+    // f->last_index = 0;
 }
 
-void AdaptFilter_put(AdaptFilter *f, float x, float d)
+void AdaptFilter_put(AdaptFilter *f, double x_i, double d_i)
 {
-    int i = f->last_index;
-    f->x[i] = x;
+    /*    int i = f->last_index;
+    f->x[i] = x_i;
     f->last_index = (i + 1) % ORDER;
-    f->d = d;
+    f->d = d_i;
+    */
+
+    //With this I'm doing the shifting manually
+   f->d = d_i;
+   for (int i = ORDER - 1; i > 0; i--) {
+        f->x[i] = f->x[i - 1];
+    }
+   f->x[0] = x_i;
+    
+
 }
 
 /*
@@ -54,6 +64,62 @@ float AdaptFilter_get(AdaptFilter *f)
     return e;
 }
 */
+double AdaptFilter_get(AdaptFilter *f)
+{       
+
+    double acc = 0.0;
+    for (int i = 0; i < ORDER; ++i) {
+        acc += f->weights[i] * f->x[i];  // f->weights deve essere double[]
+    }
+
+    double e = f->d - acc;  // f->d deve essere double
+
+    double mu = 0.0001;
+    double epsilon = 1e-6;
+
+
+    // Aggiorna i pesi usando NLMS
+    for (int i = 0; i < ORDER; ++i) {
+        f->weights[i] += mu * e * f->x[i];
+    }
+
+    return e;
+}
+/*
+double AdaptFilter_get(AdaptFilter *f)
+{       
+    double xvec[ORDER];
+    int index = f->last_index;
+
+    for (int i = 0; i < ORDER; ++i) {
+        index = (index != 0) ? index - 1 : ORDER - 1;
+        xvec[i] = f->x[index];  // Assicurati che f->x sia double[]
+    }
+
+    double acc = 0.0;
+    for (int i = 0; i < ORDER; ++i) {
+        acc += f->weights[i] * xvec[i];  // f->weights deve essere double[]
+    }
+
+    double e = f->d - acc;  // f->d deve essere double
+
+    double mu = 0.0001;
+    double epsilon = 1e-6;
+
+    double norm = epsilon;
+    for (int i = 0; i < ORDER; ++i) {
+        norm += xvec[i] * xvec[i];
+    }
+
+    // Aggiorna i pesi usando NLMS
+    for (int i = 0; i < ORDER; ++i) {
+        f->weights[i] += mu * e * xvec[i];
+    }
+
+    return e;
+}
+*/
+/*
 float AdaptFilter_get(AdaptFilter *f)
 {
     float xvec[ORDER];
@@ -86,7 +152,7 @@ float AdaptFilter_get(AdaptFilter *f)
 
     return e;
 }
-
+*/
 
 /*
 int AdaptFilter_get(AdaptFilter *f)
