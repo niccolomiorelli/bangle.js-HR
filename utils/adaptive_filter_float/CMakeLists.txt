@@ -1,0 +1,2 @@
+add_library(adaptive_filter_float adaptive_filter_float.c)
+target_include_directories(adaptive_filter_float PUBLIC include)

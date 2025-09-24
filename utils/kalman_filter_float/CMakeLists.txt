@@ -1,0 +1,2 @@
+add_library(kalman_filter_float kalman_filter_float.c)
+target_include_directories(kalman_filter_float PUBLIC include)

@@ -1,0 +1,2 @@
+add_library(spectralTracking spectralTrackingHeartRate.c)
+target_include_directories(spectralTracking PUBLIC include)

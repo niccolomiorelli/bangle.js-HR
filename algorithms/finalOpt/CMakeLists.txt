@@ -1,0 +1,2 @@
+add_library(finalOpt finalOptHeartRate.c)
+target_include_directories(finalOpt PUBLIC include)

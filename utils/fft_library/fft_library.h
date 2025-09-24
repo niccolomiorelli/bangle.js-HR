@@ -22,4 +22,8 @@ void transform_fftLib(complex_number *f, int N);
 
 void FFT_fftLib(complex_number *f, int N, double d);
 
+void apply_hann_window_fftLib(double *input, double *windowed_output, int len);
+
+void zero_pad_fftLib(complex_number *in, complex_number *out, int N, int N_pad);
+
 #endif

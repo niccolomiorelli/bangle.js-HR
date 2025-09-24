@@ -12,21 +12,22 @@ typedef struct Stats
 {
     unsigned long n;
     int index;
-    float old_mean;
-    float mean;
-    float run_var;
-    float window[WINDOW_SIZE];
+    double old_mean;
+    double mean;
+    double run_var;
+    double run_var_old;
+    double window[WINDOW_SIZE];
     int full;
 } Stats;
 
 void rolling_stats_reset(Stats *stats);
 
-void rolling_stats_addValue(float x, Stats *stats);
+void rolling_stats_addValue(double x, Stats *stats);
 
-float rolling_stats_get_mean(Stats *stats);
+double rolling_stats_get_mean(Stats *stats);
 
-float rolling_stats_get_variance(Stats *stats);
+double rolling_stats_get_variance(Stats *stats);
 
-float rolling_stats_get_standard_deviation(Stats *stats);
+double rolling_stats_get_standard_deviation(Stats *stats);
 
 #endif

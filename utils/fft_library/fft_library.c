@@ -135,3 +135,22 @@ void FFT_fftLib(complex_number *f, int N, double d)
         f[i].imag *= d;
     }
 }
+
+void apply_hann_window_fftLib(double *input, double *windowed_output, int len) {
+    for (int n = 0; n < len; n++) {
+        double hann = 0.5 * (1.0 - cos(2.0 * M_PI * n / (len - 1)));
+        windowed_output[n] = input[n] * hann;
+    }
+}
+
+
+void zero_pad_fftLib(complex_number *in, complex_number *out, int N, int N_pad) {
+    for (int i = 0; i < N_pad; i++) {
+        if (i < N) {
+            out[i] = in[i];
+        } else {
+            out[i].real = 0.0;
+            out[i].imag = 0.0;
+        }
+    }
+}

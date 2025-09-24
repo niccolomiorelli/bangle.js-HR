@@ -15,9 +15,13 @@
 #include "algorithms/autocorrelation2/autocorrelation2HeartRate.h"
 #include "algorithms/algo1/algo1HeartRate.h"
 #include "algorithms/fft2/fft2HeartRate.h"
+#include "algorithms/spectralTracking/spectralTrackingHeartRate.h"
+#include "algorithms/final/finalHeartRate.h"
+#include "algorithms/finalOpt/finalOptHeartRate.h"
+
 
 //Aggiungo
-#define algoN 9
+#define algoN 12
 
 typedef struct Algo
 {
@@ -96,7 +100,24 @@ void createAlgos()
         .get_heartrate = fft2_heartrate,
         .total_time = 0,
     };
-
+    algos[9] = (Algo){
+        .name = "SpectralTracking",
+        .init = spectralTracking_heartrate_init,
+        .get_heartrate = spectralTracking_heartrate,
+        .total_time = 0,
+    };
+    algos[10] = (Algo){
+        .name = "Final",
+        .init = final_heartrate_init,
+        .get_heartrate = final_heartrate,
+        .total_time = 0,
+    };
+    algos[11] = (Algo){
+        .name = "FinalOpt",
+        .init = finalOpt_heartrate_init,
+        .get_heartrate = finalOpt_heartrate,
+        .total_time = 0,
+    };
     
 
 }
@@ -171,12 +192,14 @@ int main(int argc, char *argv[])
         }
         // write header of output file
         fprintf(out_fp, "time,");
+        fprintf(out_fp, "time (abs),");
         for (int i = 0; i < algoN; i++)
         {
             fprintf(out_fp, "%s", algos[i].name);
-            if (i < algoN - 1)
-                fprintf(out_fp, ",");
+            fprintf(out_fp, ",");
         }
+        fprintf(out_fp, "GT_Bangle,");
+        fprintf(out_fp, "GT_polar");
         fprintf(out_fp, "\n");
 
         // counter of the line number
@@ -199,8 +222,11 @@ int main(int argc, char *argv[])
 
                 int ms, ppg, accx, accy, accz;
 
+                int GT_bangle, GT_polar;
+                long long ms_abs;
+
                 // Parse integer values using sscanf
-                if (sscanf(line, "%d,%d,%d,%d,%d", &ms, &ppg, &accx, &accy, &accz) != 5) //c'era un 4
+                if (sscanf(line, "%d,%lld,%d,%d,%d,%d,%d,%d", &ms, &ms_abs, &ppg, &accx, &accy, &accz, &GT_bangle, &GT_polar) != 8) //c'era un 5
                 {
                     printf("Error parsing line: %s\n", line);
                     continue;
@@ -212,8 +238,8 @@ int main(int argc, char *argv[])
                 // }
 
                 // Process the extracted integer values
-                printf("Values: %d, %d, %d, %d, %d\n", ms, ppg, accx, accy, accz);
-                printf("Debug688\n");
+                printf("Values: %d, %lld, %d, %d, %d, %d, %d, %d\n", ms, ms_abs, ppg, accx, accy, accz, GT_bangle, GT_polar);
+                printf("Debug\n");
                 
 
                 int delta_ms = 0;
@@ -221,6 +247,7 @@ int main(int argc, char *argv[])
                     delta_ms = ms - previous_ms;
 
                 fprintf(out_fp, "%d,", ms);
+                fprintf(out_fp, "%lld,",ms_abs);
 
                 
                 // call all algorithms here:
@@ -232,11 +259,13 @@ int main(int argc, char *argv[])
                     algos[i].total_time += clock() - start_t;
                     // write output file
                     fprintf(out_fp, "%d", hr);
-                    if (i < algoN - 1)
-                    {
-                        fprintf(out_fp, ",");
-                    }
+                    fprintf(out_fp, ",");
+                    
                 }
+                //Printing also the Ground Truths 
+                fprintf(out_fp, "%d", GT_bangle);
+                fprintf(out_fp, ",");
+                fprintf(out_fp, "%d", GT_polar);
                 fprintf(out_fp, "\n");
 
                 previous_ms = ms;

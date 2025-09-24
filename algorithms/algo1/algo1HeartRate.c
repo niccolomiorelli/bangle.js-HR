@@ -63,9 +63,9 @@ static BPFilter bpFilter_accy;
 static BPFilter bpFilter_accz;
 
 //Adaptive Filter
-static AdaptFilter adaptFilter1;
-static AdaptFilter adaptFilter2;
-static AdaptFilter adaptFilter3;
+static AdaptFilter1 adaptFilter1;
+static AdaptFilter1 adaptFilter2;
+static AdaptFilter1 adaptFilter3;
 
 static complex_number fft_input_ppg[WINDOW_LEN];
 static complex_number fft_input_acc[WINDOW_LEN];
@@ -105,9 +105,9 @@ void algo1_heartrate_init()
     BPFilter_init(&bpFilter_accz);
 
     //AdaptFilter
-    AdaptFilter_init(&adaptFilter1);
-    AdaptFilter_init(&adaptFilter2);
-    AdaptFilter_init(&adaptFilter3);
+    AdaptFilter1_init(&adaptFilter1);
+    AdaptFilter1_init(&adaptFilter2);
+    AdaptFilter1_init(&adaptFilter3);
 
 #ifdef DUMP_FILE
     fft_passes = 0;
@@ -200,15 +200,16 @@ int algo1_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t a
     */
 
     //Adaptive Filter - Three stages
+    double mu = 0.2;
     //1.
-    AdaptFilter_put(&adaptFilter1, acc_standardized[1], ppg_standardized);
-    double e1 = AdaptFilter_get(&adaptFilter1);
+    AdaptFilter1_put(&adaptFilter1, acc_standardized[1], ppg_standardized);
+    double e1 = AdaptFilter1_get(&adaptFilter1, mu);
     //2.
-    AdaptFilter_put(&adaptFilter2, acc_standardized[2], e1);
-    double e2 = AdaptFilter_get(&adaptFilter2);
+    AdaptFilter1_put(&adaptFilter2, acc_standardized[2], e1);
+    double e2 = AdaptFilter1_get(&adaptFilter2, mu);
     //3.
-    AdaptFilter_put(&adaptFilter3, acc_standardized[3], e2);
-    double ppg_adaptfilt = AdaptFilter_get(&adaptFilter3);
+    AdaptFilter1_put(&adaptFilter3, acc_standardized[3], e2);
+    double ppg_adaptfilt = AdaptFilter1_get(&adaptFilter3, mu);
 
 
 

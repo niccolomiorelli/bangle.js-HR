@@ -52,7 +52,7 @@ static int HR = 0;
 static int samples_since_last_HR = 0;
 
 //DUMP FILE: to save .csv files of FFT signals for each window
-#define DUMP_FILE 
+// #define DUMP_FILE 
 #ifdef DUMP_FILE
 static int fft_passes = 0; // counter of how many times the autocorr has been called
 #define DUMP_FFT2_FILE_NAME "fft2"
