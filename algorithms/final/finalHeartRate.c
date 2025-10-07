@@ -47,7 +47,7 @@
 #define LOW_FREQ_PHY_I 25              // corresponding to 36 bpm => (freq * N_PAD)/SAMPLING_FREQ = 25: with N_PAD = 1024, freq = 0.61Hz (or 36.6 bpm)
 #define HIGH_FREQ_PHY_I 143            // corresponing to 210 bpm => (freq * N_PAD)/SAMPLING_FREQ = 143: with N_PAD = 1024, freq = 3.49.Hz (or 209.5 bpm)
 //HR_range (in indexes)
-#define DELTA_HR_RANGE 34              // corresponding to 50 bpm => (freq * N_PAD)/SAMPLING_FREQ = 34 with N_PAD = 1024, freq = 0.83Hz (or 49.8 bpm)
+#define DELTA_HR_RANGE 48 //34              // corresponding to 50 bpm => (freq * N_PAD)/SAMPLING_FREQ = 34 with N_PAD = 1024, freq = 0.83Hz (or 49.8 bpm)
 
 // State Machine
 #define THRESHOLD_MOTION 300.0
@@ -146,8 +146,8 @@ static int counter_over = 0;
 static int counter_under = 0;
 
 // Model for HR from acceleration prior knowledge (in bpm)
-static double a = 0.0093;
-static double b = 14.96;
+static double a = 0.006;
+static double b = 48.15;
 
 // Array with the last spectral peaks and confidences 
 static int last_peaks_i[N_LAST_SAVED] = {0};
@@ -266,8 +266,8 @@ void final_heartrate_init()
     counter_under = 0;
 
     // Model for HR from acceleration prior knowledge (in bpm)
-    a = 0.0093;
-    b = 14.96;
+    a = 0.006;
+    b = 48.15;
 
     // Initialization of the last peaks and confidences
     for (int i=0; i<N_LAST_SAVED;i++){
@@ -718,8 +718,8 @@ if (values_win_C_File)
         double HR_low_est_limit_2m = HR_freq_est3 - 1.96 * sqrt(P_2m);
         double HR_high_est_limit_2m = HR_freq_est3 + 1.96 * sqrt(P_2m);
 
-        // Final HR value
-        HR  = (int)(HR_freq_est3 * 600); //in bpm x 10
+        // Final HR value - Without sensor fusion 
+        HR  = (int)(HR_freq_est2 * 600); //in bpm x 10
 
         double HR_k3 = HR_freq_est3*600;
         double HR_k2 = HR_freq_est2*600;

@@ -1,0 +1,2 @@
+add_library(finalShort finalShortHeartRate.c)
+target_include_directories(finalShort PUBLIC include)

@@ -25,6 +25,7 @@ add_subdirectory(algorithms/fft2)
 add_subdirectory(algorithms/spectralTracking)
 add_subdirectory(algorithms/final)
 add_subdirectory(algorithms/finalOpt)
+add_subdirectory(algorithms/finalShort)
 
 add_executable(heartrate main.c)
 
@@ -49,3 +50,4 @@ target_link_libraries(heartrate fft2)
 target_link_libraries(heartrate spectralTracking)
 target_link_libraries(heartrate final)
 target_link_libraries(heartrate finalOpt)
+target_link_libraries(heartrate finalShort)

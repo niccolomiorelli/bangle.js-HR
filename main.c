@@ -18,10 +18,11 @@
 #include "algorithms/spectralTracking/spectralTrackingHeartRate.h"
 #include "algorithms/final/finalHeartRate.h"
 #include "algorithms/finalOpt/finalOptHeartRate.h"
+#include "algorithms/finalShort/finalShortHeartRate.h"
 
 
 //Aggiungo
-#define algoN 12
+#define algoN 13
 
 typedef struct Algo
 {
@@ -116,6 +117,12 @@ void createAlgos()
         .name = "FinalOpt",
         .init = finalOpt_heartrate_init,
         .get_heartrate = finalOpt_heartrate,
+        .total_time = 0,
+    };
+    algos[12] = (Algo){
+        .name = "FinalShort",
+        .init = finalShort_heartrate_init,
+        .get_heartrate = finalShort_heartrate,
         .total_time = 0,
     };
     
