@@ -1,0 +1,2 @@
+add_library(debug10 debug10HeartRate.c)
+target_include_directories(debug10 PUBLIC include)

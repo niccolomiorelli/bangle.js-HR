@@ -1,0 +1,2 @@
+add_library(debug82 debug82HeartRate.c)
+target_include_directories(debug82 PUBLIC include)

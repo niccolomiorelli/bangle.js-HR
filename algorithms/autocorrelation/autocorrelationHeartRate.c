@@ -7,9 +7,9 @@
 * To change the window length -> NUM_TUPLES 
 * The algorithm searches the second peak of the autocorrelation, limiting the search between the [8, 50] lags,
 * corresponding to the range of HR [30bpm, 180bpm] or [0.5Hz, 3Hz] -> To change this parameters: NUM_AUTOCORR_LAGS, FIRST_AUTOCORR_PEAK_LAG
-* The algorithm currently finds the peak with a peak detection on the original autocorrelation signal. 
+* The algorithm currently finds the peak with a peak detection on the original autocorrelation signal.
+* The algorithm can also perform a logic to verify the detected peak (for now it is commentated/disabled). 
 * The second replica uses a derivative filter to find the peak.
-* The algorithm can also perform a logic to verify the detected peak (for now it is commentated/disabled).
 * The algorithm inspired by the algorithm in "https://github.com/VirginiaSek/Algo" used for step counting from accelerometer signal.
 *
 * Modifications have been made in order to adapt the algorithm to the HR computation from PPG signal.

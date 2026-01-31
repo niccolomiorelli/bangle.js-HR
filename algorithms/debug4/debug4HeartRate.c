@@ -1,5 +1,6 @@
 /* ----------------------------------------------------
-* FINAL ALGORITHM OPTIMIZED --> Versione con solo float
+* debug4 --> NLMS + FFT + SPECTRAL PEAK with UPDATED HR range + CONFIDENCE + KALMAN (NO Sensor Fusion)
+* Updating of the ACC-HR model 
 */
 
 
@@ -17,7 +18,7 @@
 #include "../../utils/adaptive_filter_float/adaptive_filter_float.h"
 #include "../../utils/kalman_filter_float/kalman_filter_float.h"
 
-#include "finalOptHeartRate.h"
+#include "debug4HeartRate.h"
 
 
 // --- PARAMETERS DEFINITION ---
@@ -66,11 +67,11 @@
 #define THRESHOLD_HIGH_CONFIDENCE 0.87f
 
 // To save .csv files 
-#define DUMP_FILE 
+// #define DUMP_FILE 
 #ifdef DUMP_FILE
 static int fft_passes = 0;             // counter of how many times the autocorr has been called
-// #define DUMP_FFT_ST_FILE_NAME "bangle.js-HR/Dump_files/fft_ST_float"                       // To save the FFT at each window
-// static FILE *fftSTFile;
+#define DUMP_FFT_ST_FILE_NAME "bangle.js-HR/Dump_files/fft_ST_float"                       // To save the FFT at each window
+static FILE *fftSTFile;
 #define DUMP_VALUESWIND_ST_FILE_NAME "bangle.js-HR/Dump_files/values_window_C_float.csv"   // To save some values for each window
 static FILE *values_win_C_File;
 #define DUMP_SIGNALS_ST_FILE_NAME "bangle.js-HR/Dump_files/list_signals_C_float.csv"       // To save the overall signals
@@ -158,7 +159,7 @@ static int HR = 0;
 // --- SOME FUNCTIONS ---
 
 // Model for HR from acceleration prior knowledge (in bpm)
-float HR_fom_ACC_float3(float rms, float a, float b){
+float HR_fom_ACC_float_debug4(float rms, float a, float b){
     float out = a*rms + b;
     if (out > 210.0f){
         out = 210.0f;
@@ -172,7 +173,7 @@ float HR_fom_ACC_float3(float rms, float a, float b){
 
 // Update the HR model from the acceleration
 // The update is done only on the b parameter, using a gradient update rule
-void update_HR_model_from_ACC3(float HR_PPG, float HR_ACC, float* a, float* b){
+void update_HR_model_from_ACC_debug4(float HR_PPG, float HR_ACC, float* a, float* b){
     float learning_rate = 0.25f;
     // Keep a unchanged
     *b = *b + learning_rate * (HR_PPG - HR_ACC);
@@ -182,12 +183,12 @@ void update_HR_model_from_ACC3(float HR_PPG, float HR_ACC, float* a, float* b){
 }
 
 // Funzione sigmoid
-float sigmoid_conf3(float x, float midpoint, float scale) {
+float sigmoid_conf_debug4(float x, float midpoint, float scale) {
     return 1.0f / (1.0f + exp(-scale * (x - midpoint)));
 }
 
 // Weighted average of the last peaks with their confidence
-void weighted_average_with_confidence3(float* peaks, float* confidences, int len, float* weighted_avg, float* C_est) {
+void weighted_average_with_confidence_debug4(float* peaks, float* confidences, int len, float* weighted_avg, float* C_est) {
     float sum_weighted_peaks = 0.0f;
     float sum_conf = 0.0f;
     float sum_conf_squared = 0.0f;
@@ -206,7 +207,7 @@ void weighted_average_with_confidence3(float* peaks, float* confidences, int len
 
 
 // --- INIT FUNCTION --- 
-void finalOpt_heartrate_init()
+void debug4_heartrate_init()
 {
     // Linear interpolation
     ppg_last=0;
@@ -300,7 +301,7 @@ void finalOpt_heartrate_init()
 // The function takes as input the samples already corrected for the missing values.
 // As output it gives the estimation of the heart rate on successives windows.
 
-int main_algorithm_opt(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+int main_algorithm_debug4(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
 
     // Acceleration magnitude - raw
     accel_t acc_raw = (accel_t)sqrt(accx*accx + accy*accy + accz*accz);
@@ -412,13 +413,13 @@ int main_algorithm_opt(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_
 
         // File dump: open the file to plot the fft
 #ifdef DUMP_FILE
-        // fft_passes++;
-        // char fftSTFileName[100] = DUMP_FFT_ST_FILE_NAME;
-        // char idxstr[5];
-        // sprintf(idxstr, "%d", fft_passes);
-        // strcat(fftSTFileName, idxstr);
-        // strcat(fftSTFileName, ".csv");
-        // fftSTFile = fopen(fftSTFileName, "w+");
+        fft_passes++;
+        char fftSTFileName[100] = DUMP_FFT_ST_FILE_NAME;
+        char idxstr[5];
+        sprintf(idxstr, "%d", fft_passes);
+        strcat(fftSTFileName, idxstr);
+        strcat(fftSTFileName, ".csv");
+        fftSTFile = fopen(fftSTFileName, "w+");
 #endif
 
 
@@ -483,7 +484,7 @@ int main_algorithm_opt(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_
         rms_float = sqrt(mean_double);
 
         //HR-range with the acceleration prior knowledge
-        float HR_ACC = HR_fom_ACC_float3(rms_float, a, b);
+        float HR_ACC = HR_fom_ACC_float_debug4(rms_float, a, b);
         float HR_range_centre_i_double = (HR_ACC*N_PAD) / (SAMPLING_FREQ*60.0f);
         float low_freq_HRrange_i_double = HR_range_centre_i_double - DELTA_HR_RANGE/2;
         float high_freq_HRrange_i_double = HR_range_centre_i_double + DELTA_HR_RANGE/2;
@@ -542,10 +543,10 @@ if (values_win_C_File)
 
             //Writing on the file the FFT on the physiological range
 #ifdef DUMP_FILE
-            // if (fftSTFile)
-            // {
-            //     fprintf(fftSTFile, "%f, %f\n", (float)i , fft_magnitude[i]); 
-            // }
+            if (fftSTFile)
+            {
+                fprintf(fftSTFile, "%f, %f\n", (float)i , fft_magnitude[i]); 
+            }
 #endif
         }
 
@@ -662,8 +663,8 @@ if (values_win_C_File)
         }
 
         // Through sigmoid functions:
-        float c1_sigmoid = sigmoid_conf3(c1, MIDPOINT_C1, SCALE_C1);
-        float c2_sigmoid = sigmoid_conf3(c2, MIDPOINT_C2, SCALE_C2);
+        float c1_sigmoid = sigmoid_conf_debug4(c1, MIDPOINT_C1, SCALE_C1);
+        float c2_sigmoid = sigmoid_conf_debug4(c2, MIDPOINT_C2, SCALE_C2);
 
         // Weighted combination
         float coeff_sigmoid = ALPHA * c1_sigmoid + BETA * c2_sigmoid + GAMMA * c3;
@@ -707,7 +708,7 @@ if (values_win_C_File)
         float HR_high_est_limit_2m = HR_freq_est3 + 1.96f * sqrt(P_2m);
 
         // Final HR value
-        HR  = (int)(HR_freq_est3 * 600); //in bpm x 10
+        HR  = (int)(HR_freq_est2 * 600); //in bpm x 10
 
         float HR_k3 = HR_freq_est3*600;
         float HR_k2 = HR_freq_est2*600;
@@ -730,10 +731,10 @@ if (values_win_C_File)
             // Compute the weighted average of the last peaks with their confidence
             float HR_freq_average;
             float c_average;
-            weighted_average_with_confidence3(last_peaks, last_confs, N_LAST_SAVED, &HR_freq_average, &c_average);
+            weighted_average_with_confidence_debug4(last_peaks, last_confs, N_LAST_SAVED, &HR_freq_average, &c_average);
 
             // Update the model
-            update_HR_model_from_ACC3(HR_freq_average*60, HR_ACC, &a, &b);
+            update_HR_model_from_ACC_debug4(HR_freq_average*60, HR_ACC, &a, &b);
 
         }
         
@@ -750,23 +751,23 @@ if (values_win_C_File)
             }
 
         // Writing on the fft file some values of the window
-        // if (fftSTFile)
-        //     {
-        //         fprintf(fftSTFile, "%s, %d\n", "peak_index", dominant_freq_index);
-        //         fprintf(fftSTFile, "%s, %f\n", "c1" , c1_sigmoid);
-        //         fprintf(fftSTFile, "%s, %f\n", "c2" , c2_sigmoid);
-        //         fprintf(fftSTFile, "%s, %f\n", "c3" , c3);
-        //         fprintf(fftSTFile, "%s, %f\n", "coeff" , coeff_sigmoid);
-        //         fprintf(fftSTFile, "%s, %d\n", "Lower_limit", lower_limit);
-        //         fprintf(fftSTFile, "%s, %d\n", "Higher_limit", higher_limit);
-        //     }
+        if (fftSTFile)
+            {
+                fprintf(fftSTFile, "%s, %d\n", "peak_index", dominant_freq_index);
+                fprintf(fftSTFile, "%s, %f\n", "c1" , c1_sigmoid);
+                fprintf(fftSTFile, "%s, %f\n", "c2" , c2_sigmoid);
+                fprintf(fftSTFile, "%s, %f\n", "c3" , c3);
+                fprintf(fftSTFile, "%s, %f\n", "coeff" , coeff_sigmoid);
+                fprintf(fftSTFile, "%s, %d\n", "Lower_limit", lower_limit);
+                fprintf(fftSTFile, "%s, %d\n", "Higher_limit", higher_limit);
+            }
 
-        // // Closing the fft file
-        // if (fftSTFile)
-        //     {
-        //         fflush(fftSTFile);
-        //         fclose(fftSTFile);
-        //     }
+        // Closing the fft file
+        if (fftSTFile)
+            {
+                fflush(fftSTFile);
+                fclose(fftSTFile);
+            }
 
 #endif        
 
@@ -786,14 +787,14 @@ if (values_win_C_File)
 
 // --- LINEAR INTERPOLATION FUNCTION ---
 
-int finalOpt_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+int debug4_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
     int final_HR;
     int HR_results[3] = {-1};
     for(int i=0;i<3;i++){
         HR_results[i] = -1;
     }
     if(delta_ms < 60){
-        HR_results[0] = main_algorithm_opt(delta_ms,ppg,accx,accy,accz);
+        HR_results[0] = main_algorithm_debug4(delta_ms,ppg,accx,accy,accz);
         final_HR = HR_results[0];
     }
     else if ((delta_ms > 60) & (delta_ms < 100)){
@@ -803,8 +804,8 @@ int finalOpt_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_
         int accy_interp = (accy + accy_last) / 2;
         int accz_interp = (accz + accz_last) / 2;
 
-        HR_results[0] = main_algorithm_opt(delta_ms_interp, ppg_interp, accx_interp, accy_interp, accz_interp);
-        HR_results[1] = main_algorithm_opt(delta_ms,ppg,accx,accy,accz);
+        HR_results[0] = main_algorithm_debug4(delta_ms_interp, ppg_interp, accx_interp, accy_interp, accz_interp);
+        HR_results[1] = main_algorithm_debug4(delta_ms,ppg,accx,accy,accz);
         final_HR = HR_results[1];
     }
     else{
@@ -819,9 +820,9 @@ int finalOpt_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_
         int accy_interp2 = accy*2/3 + accy_last/3;
         int accz_interp2 = accz*2/3 + accz_last/3;
 
-        HR_results[0] = main_algorithm_opt(delta_ms_interp1, ppg_interp1, accx_interp1, accy_interp1, accz_interp1);
-        HR_results[1] = main_algorithm_opt(delta_ms_interp2, ppg_interp2, accx_interp2, accy_interp2, accz_interp2);
-        HR_results[2] = main_algorithm_opt(delta_ms,ppg,accx,accy,accz);
+        HR_results[0] = main_algorithm_debug4(delta_ms_interp1, ppg_interp1, accx_interp1, accy_interp1, accz_interp1);
+        HR_results[1] = main_algorithm_debug4(delta_ms_interp2, ppg_interp2, accx_interp2, accy_interp2, accz_interp2);
+        HR_results[2] = main_algorithm_debug4(delta_ms,ppg,accx,accy,accz);
         final_HR = HR_results[2];
     }
     ppg_last = ppg;

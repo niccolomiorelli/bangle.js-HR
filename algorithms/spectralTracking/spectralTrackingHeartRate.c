@@ -1,7 +1,7 @@
 /* ----------------------------------------------------
 * SPECTRAL TRACKING ALGORITHM
 * ----------------------------------------------------
-* Description:
+* Description: This was the first version of my final algorithm. In final it is the same, but it is written well.
 *
 */
 
