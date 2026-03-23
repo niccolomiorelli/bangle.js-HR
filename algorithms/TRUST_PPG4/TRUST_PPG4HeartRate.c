@@ -140,7 +140,7 @@ static int samples_since_last_HR = 0;                                           
 static accel_t acc_magnitude[WINDOW_LEN] = {0};                                      // Buffer for the magnitude of the acceleration signal
 float windowed_signal_in[WINDOW_LEN];                                               // For the fft and zero-padding
 float windowed_signal_out[WINDOW_LEN]; 
-static complex_number_float fft_input[WINDOW_LEN];   //Attenzione a questo 
+static complex_number_float fft_input[WINDOW_LEN];
 static complex_number_float fft_input_padded[N_PAD];
 
 // State Machine
@@ -149,9 +149,6 @@ static int pending_state = -1;   // candidate next state to confirm
 static int pending_count = 0;    // consecutive windows supporting pending_state
 
 // Model for HR from acceleration prior knowledge (in bpm)
-// for EMPATICA
-// static float a = 0.00465; // 0.0093f;
-// static float b = 30.0f; // 14.96f;
 // FOR BANGLE
 static float a = 0.0093f;
 static float b = 14.96f;
@@ -176,7 +173,6 @@ static int HR = 0;
 
 // --- SOME FUNCTIONS ---
 
-
 // Model for HR from acceleration prior knowledge (in bpm)
 float HR_fom_ACC_float_trust_ppg4(float rms, float a, float b){
     float out = a*rms + b;
@@ -197,18 +193,6 @@ void update_HR_model_from_ACC_trust_ppg4(float HR_PPG, float HR_ACC, float* a, f
     float learning_rate = 0.25f;
     // Keep a unchanged
     *b = *b + learning_rate * (HR_PPG - HR_ACC);
-    // // for EMPATICA
-    // if (*b < 0.0f) *b = 0.0f;
-    // if (*b > 140.0f) *b = 140.0f;
-
-    // if (state == STATE_MOTION_HIGH)
-    // {
-    //     if (*b < 25.0f) *b = 25.0f;
-    // }
-    // if (state == STATE_MOTION_MEDIUM)
-    // {
-    //     if (*b < 15.0f) *b = 15.0f;
-    // }
 
     // for BANGLE
     if (*b < -15.0f) *b = -15.0f;
@@ -296,14 +280,6 @@ void trust_ppg4_heartrate_init()
     pending_state = -1;
     pending_count = 0;
 
-    // Model for HR from acceleration prior knowledge (in bpm)
-    // a = 0.011f;
-    // b = -15.0f;
-
-    // for EMPATICA
-    // a = 0.00465f;
-    // b = 30.0f;
-    // for BANGLE
     a = 0.0093f;
     b = 14.96f;
 
@@ -647,7 +623,7 @@ if (values_win_C_File)
         // Check if one peak is found
         bool peak_found = true;
         if (dominant_freq_index == 0.0f){
-            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one NB: ADD SOMETHING IN CASE OF THE FIRST WINDOW
+            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one
             peak_found = false;
         }
 
@@ -657,7 +633,7 @@ if (values_win_C_File)
             last_peaks[i] = last_peaks[i-1];
         }
         last_peaks_i[0] = dominant_freq_index;                                                       //Index of the FFT
-        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                 //In Hz
+        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                   //In Hz
 
 
 
@@ -721,7 +697,7 @@ if (values_win_C_File)
         // Weighted combination
         float coeff_sigmoid = ALPHA * c1_sigmoid + BETA * c2_sigmoid + GAMMA * c3;
 
-        // Penalization for transiztion state
+        // Penalization for transition state
         if (state == STATE_TRANSITION){
             coeff_sigmoid = coeff_sigmoid - 0.4f;
         }
@@ -729,7 +705,7 @@ if (values_win_C_File)
         if (coeff_sigmoid < 0.0f) coeff_sigmoid = 0.0f;
         if (coeff_sigmoid > 1.0f) coeff_sigmoid = 1.0f;
 
-        // If the peak is not found, the cinfidence is zero         //NB: MAYBE CHANGE THIS, I COULD SIMPLY REDUCE THE PREVIOUS CONFIDENCE MAYBE!! NAHH MAYBE IT MAKES SENSE
+        // If the peak is not found, the confidence is zero   
         if (!peak_found){
             coeff_sigmoid = 0.0f;
         }
@@ -834,7 +810,6 @@ if (values_win_C_File)
     }
 
     
-    // Return the HR*10
     return HR;
 
 }

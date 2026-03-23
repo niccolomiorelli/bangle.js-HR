@@ -46,7 +46,7 @@
 #define DELTA_HR_RANGE 34              // corresponding to 50 bpm => (freq * N_PAD)/SAMPLING_FREQ = 34 with N_PAD = 1024, freq = 0.83Hz (or 49.8 bpm)
 
 // State Machine
-#define THRESHOLD_MOTION 600.0f //300.0f
+#define THRESHOLD_MOTION 600.0f 
 #define STATE_STATIONARY 0
 #define STATE_MOTION 1
 #define STATE_TRANSITION 2
@@ -592,7 +592,7 @@ if (values_win_C_File)
         // Check if one peak is found
         bool peak_found = true;
         if (dominant_freq_index == 0.0f){
-            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one NB: ADD SOMETHING IN CASE OF THE FIRST WINDOW
+            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one
             peak_found = false;
         }
 
@@ -602,7 +602,7 @@ if (values_win_C_File)
             last_peaks[i] = last_peaks[i-1];
         }
         last_peaks_i[0] = dominant_freq_index;                                                       //Index of the FFT
-        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                 //In Hz
+        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                   //In Hz
 
 
 
@@ -796,8 +796,7 @@ if (values_win_C_File)
         samples_since_last_HR=0;
     }
 
-    
-    // Return the HR*10
+
     return HR;
 
 }

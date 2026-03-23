@@ -4,3 +4,9 @@ OUTPUT_Dataset*
 build/
 Dump_files*
 bangle_files
+
+algorithms/algo1/
+algorithms/debug*/
+algorithms/final/
+algorithms/finalShort/
+algorithms/spectralTracking/

@@ -152,9 +152,6 @@ static int pending_count = 0;    // consecutive windows supporting pending_state
 // for EMPATICA
 static float a = 0.00465; 
 static float b = 30.0f; 
-// FOR BANGLE
-// static float a = 0.0093f;
-// static float b = 14.96f;
 
 // Array with the last spectral peaks and confidences 
 static int last_peaks_i[N_LAST_SAVED] = {0};
@@ -208,19 +205,6 @@ void update_HR_model_from_ACC_trust_ppg4_emp(float HR_PPG, float HR_ACC, float* 
     {
         if (*b < 15.0f) *b = 15.0f;
     }
-
-    // for BANGLE
-    // if (*b < -15.0f) *b = -15.0f;
-    // if (*b > 70.0f) *b = 70.0f;
-
-    // if (state == STATE_MOTION_HIGH)
-    // {
-    //     if (*b < 5.0f) *b = 5.0f;
-    // }
-    // if (state == STATE_MOTION_MEDIUM)
-    // {
-    //     if (*b < -15.0f) *b = -15.0f;
-    // }
     
 }
 
@@ -295,18 +279,10 @@ void trust_ppg4_emp_heartrate_init()
     pending_state = -1;
     pending_count = 0;
 
-    // Model for HR from acceleration prior knowledge (in bpm)
-    // a = 0.011f;
-    // b = -15.0f;
-
     // for EMPATICA
     a = 0.00465f;
     b = 30.0f;
-    // for BANGLE
-    // a = 0.0093f;
-    // b = 14.96f;
-
-
+  
     // Initialization of the last peaks and confidences
     for (int i=0; i<N_LAST_SAVED;i++){
         last_peaks_i[i] = 0;
@@ -647,7 +623,7 @@ if (values_win_C_File)
         // Check if one peak is found
         bool peak_found = true;
         if (dominant_freq_index == 0.0f){
-            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one NB: ADD SOMETHING IN CASE OF THE FIRST WINDOW
+            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one
             peak_found = false;
         }
 
@@ -657,7 +633,7 @@ if (values_win_C_File)
             last_peaks[i] = last_peaks[i-1];
         }
         last_peaks_i[0] = dominant_freq_index;                                                       //Index of the FFT
-        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                 //In Hz
+        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                   //In Hz
 
 
 
@@ -834,7 +810,6 @@ if (values_win_C_File)
     }
 
     
-    // Return the HR*10
     return HR;
 
 }

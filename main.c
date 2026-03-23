@@ -13,21 +13,7 @@
 #include "algorithms/oxford/oxfordHeartRate.h"
 #include "algorithms/pantompkins/pantompkinsHeartRate.h"
 #include "algorithms/autocorrelation2/autocorrelation2HeartRate.h"
-#include "algorithms/algo1/algo1HeartRate.h"
 #include "algorithms/fft2/fft2HeartRate.h"
-#include "algorithms/spectralTracking/spectralTrackingHeartRate.h"
-#include "algorithms/final/finalHeartRate.h"
-#include "algorithms/finalShort/finalShortHeartRate.h"
-#include "algorithms/debug1/debug1HeartRate.h"
-#include "algorithms/debug2/debug2HeartRate.h"
-#include "algorithms/debug3/debug3HeartRate.h"
-#include "algorithms/debug4/debug4HeartRate.h"
-#include "algorithms/debug5/debug5HeartRate.h"
-#include "algorithms/debug6/debug6HeartRate.h"
-#include "algorithms/debug7/debug7HeartRate.h"
-#include "algorithms/debug9/debug9HeartRate.h"
-#include "algorithms/debug10/debug10HeartRate.h"
-#include "algorithms/debug11/debug11HeartRate.h"
 #include "algorithms/TRUST_PPG1/TRUST_PPG1HeartRate.h"
 #include "algorithms/TRUST_PPG1_emp/TRUST_PPG1_empHeartRate.h"
 #include "algorithms/TRUST_PPG2/TRUST_PPG2HeartRate.h"  
@@ -39,7 +25,7 @@
 
 
 //Aggiungo
-#define algoN 7
+#define algoN 12
 
 typedef struct Algo
 {
@@ -73,109 +59,91 @@ void createAlgos()
         .total_time = 0,
     };
 
-    // algos[2] = (Algo){
-    //     .name = "FFT",
-    //     .init = fft_heartrate_init,
-    //     .get_heartrate = fft_heartrate,
-    //     .total_time = 0,
-    // };
-
     algos[2] = (Algo){
+        .name = "FFT",
+        .init = fft_heartrate_init,
+        .get_heartrate = fft_heartrate,
+        .total_time = 0,
+    };
+
+    algos[3] = (Algo){
         .name = "Autocorrelation",
         .init = autocorrelation_heartrate_init,
         .get_heartrate = autocorrelation_heartrate,
         .total_time = 0,
     };
 
-    algos[3] = (Algo){
+    algos[4] = (Algo){
         .name = "Oxford",
         .init = oxford_heartrate_init,
         .get_heartrate = oxford_heartrate,
         .total_time = 0,
     };
 
-    algos[4] = (Algo){
+    algos[5] = (Algo){
         .name = "PanTompkins",
         .init = pantompkins_heartrate_init,
         .get_heartrate = pantompkins_heartrate,
         .total_time = 0,
     };
-    algos[5] = (Algo){
+    algos[6] = (Algo){
         .name = "Autocorrelation2",
         .init = autocorrelation2_heartrate_init,
         .get_heartrate = autocorrelation2_heartrate,
         .total_time = 0,
     };
-    // algos[7] = (Algo){
-    //     .name = "Algo1",
-    //     .init = algo1_heartrate_init,
-    //     .get_heartrate = algo1_heartrate,
-    //     .total_time = 0,
-    // };
-    algos[6] = (Algo){
+    algos[7] = (Algo){
         .name = "FFT2",
         .init = fft2_heartrate_init,
         .get_heartrate = fft2_heartrate,
         .total_time = 0,
     };
+    algos[8] = (Algo){
+        .name = "TRUST_PPG1",
+        .init = trust_ppg1_heartrate_init,
+        .get_heartrate = trust_ppg1_heartrate,
+        .total_time = 0,
+    };
+     algos[9] = (Algo){
+        .name = "TRUST_PPG2",
+        .init = trust_ppg2_heartrate_init,
+        .get_heartrate = trust_ppg2_heartrate,
+        .total_time = 0,
+    };
+    algos[10] = (Algo){
+         .name = "TRUST_PPG3",
+         .init = trust_ppg3_heartrate_init,
+         .get_heartrate = trust_ppg3_heartrate,
+         .total_time = 0,
+    };
+    algos[11] = (Algo){
+        .name = "TRUST_PPG4",
+        .init = trust_ppg4_heartrate_init,
+        .get_heartrate = trust_ppg4_heartrate,
+        .total_time = 0,
+    };
+    // algos[8] = (Algo){
+    //      .name = "TRUST_PPG1_emp",
+    //      .init = trust_ppg1_emp_heartrate_init,
+    //      .get_heartrate = trust_ppg1_emp_heartrate,
+    //      .total_time = 0,
+    // };
     // algos[9] = (Algo){
-    //     .name = "SpectralTracking",
-    //     .init = spectralTracking_heartrate_init,
-    //     .get_heartrate = spectralTracking_heartrate,
+    //     .name = "TRUST_PPG2_emp",
+    //     .init = trust_ppg2_emp_heartrate_init,
+    //     .get_heartrate = trust_ppg2_emp_heartrate,
     //     .total_time = 0,
     // };
     // algos[10] = (Algo){
-    //     .name = "Final",
-    //     .init = final_heartrate_init,
-    //     .get_heartrate = final_heartrate,
-    //     .total_time = 0,
-    // };
-    // algos[3] = (Algo){
-    //     .name = "BangleAlgorithm1",
-    //     .init = finalOpt_heartrate_init,
-    //     .get_heartrate = finalOpt_heartrate,
-    //     .total_time = 0,
-    // };
-    //  algos[4] = (Algo){
-    //     .name = "BangleAlgorithm2",
-    //     .init = debug89_heartrate_init,
-    //     .get_heartrate = debug89_heartrate,
-    //     .total_time = 0,
-    // };
-    // algos[5] = (Algo){
-    //      .name = "BangleAlgorithm3",
-    //      .init = debug88_heartrate_init,
-    //      .get_heartrate = debug88_heartrate,
+    //      .name = "TRUST_PPG3_emp",
+    //      .init = trust_ppg3_emp_heartrate_init,
+    //      .get_heartrate = trust_ppg3_emp_heartrate,
     //      .total_time = 0,
     // };
-    // algos[6] = (Algo){
-    //     .name = "BangleAlgorithm4",
-    //     .init = debug8_heartrate_init,
-    //     .get_heartrate = debug8_heartrate,
-    //     .total_time = 0,
-    // };
-    // algos[3] = (Algo){
-    //      .name = "BangleAlgorithm1_emp",
-    //      .init = finalOpt2_heartrate_init,
-    //      .get_heartrate = finalOpt2_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[4] = (Algo){
-    //     .name = "BangleAlgorithm2_emp",
-    //     .init = debug892_heartrate_init,
-    //     .get_heartrate = debug892_heartrate,
-    //     .total_time = 0,
-    // };
-    // algos[5] = (Algo){
-    //      .name = "BangleAlgorithm3_emp",
-    //      .init = debug882_heartrate_init,
-    //      .get_heartrate = debug882_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[6] = (Algo){
-    //     .name = "BangleAlgorithm4_emp",
-    //     .init = debug82_heartrate_init,
-    //     .get_heartrate = debug82_heartrate,
+    // algos[11] = (Algo){
+    //     .name = "TRUST_PPG4_emp",
+    //     .init = trust_ppg4_emp_heartrate_init,
+    //     .get_heartrate = trust_ppg4_emp_heartrate,
     //     .total_time = 0,
     // };
 

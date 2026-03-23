@@ -140,7 +140,7 @@ static int samples_since_last_HR = 0;                                           
 static accel_t acc_magnitude[WINDOW_LEN] = {0};                                      // Buffer for the magnitude of the acceleration signal
 float windowed_signal_in[WINDOW_LEN];                                               // For the fft and zero-padding
 float windowed_signal_out[WINDOW_LEN]; 
-static complex_number_float fft_input[WINDOW_LEN];   //Attenzione a questo 
+static complex_number_float fft_input[WINDOW_LEN];   
 static complex_number_float fft_input_padded[N_PAD];
 
 // State Machine
@@ -197,18 +197,6 @@ void update_HR_model_from_ACC_trust_ppg3(float HR_PPG, float HR_ACC, float* a, f
     float learning_rate = 0.25f;
     // Keep a unchanged
     *b = *b + learning_rate * (HR_PPG - HR_ACC);
-    // // for EMPATICA
-    // if (*b < 10.0f) *b = 10.0f;
-    // if (*b > 140.0f) *b = 140.0f;
-
-    // if (state == STATE_MOTION_HIGH)
-    // {
-    //     if (*b < 50.0f) *b = 50.0f;
-    // }
-    // if (state == STATE_MOTION_MEDIUM)
-    // {
-    //     if (*b < 20.0f) *b = 20.0f;
-    // }
 
     // for BANGLE
     if (*b < -15.0f) *b = -15.0f;
@@ -558,7 +546,7 @@ int main_algorithm_trust_ppg3(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx,
         } else if (state == STATE_MOTION_HIGH)
         {
             lower_limit = (int)ceil(((HR_ACC*N_PAD) / (SAMPLING_FREQ*60.0f))) - (DELTA_HR_RANGE/2);
-            higher_limit = (int)floor(((HR_ACC*N_PAD) / (SAMPLING_FREQ*60.0f))) + (DELTA_HR_RANGE/2); //A bit more wide range for high motion, about 10 bpm;
+            higher_limit = (int)floor(((HR_ACC*N_PAD) / (SAMPLING_FREQ*60.0f))) + (DELTA_HR_RANGE/2);
         }
        
 
@@ -638,7 +626,7 @@ if (values_win_C_File)
         // Check if one peak is found
         bool peak_found = true;
         if (dominant_freq_index == 0.0f){
-            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one NB: ADD SOMETHING IN CASE OF THE FIRST WINDOW
+            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one
             peak_found = false;
         }
 
@@ -648,7 +636,7 @@ if (values_win_C_File)
             last_peaks[i] = last_peaks[i-1];
         }
         last_peaks_i[0] = dominant_freq_index;                                                       //Index of the FFT
-        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                 //In Hz
+        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                   //In Hz
 
 
 
@@ -712,7 +700,7 @@ if (values_win_C_File)
         // Weighted combination
         float coeff_sigmoid = ALPHA * c1_sigmoid + BETA * c2_sigmoid + GAMMA * c3;
 
-        // Penalization for transiztion state
+        // Penalization for transition state
         if (state == STATE_TRANSITION){
             coeff_sigmoid = coeff_sigmoid - 0.4f;
         }
@@ -720,7 +708,7 @@ if (values_win_C_File)
         if (coeff_sigmoid < 0.0f) coeff_sigmoid = 0.0f;
         if (coeff_sigmoid > 1.0f) coeff_sigmoid = 1.0f;
 
-        // If the peak is not found, the cinfidence is zero         //NB: MAYBE CHANGE THIS, I COULD SIMPLY REDUCE THE PREVIOUS CONFIDENCE MAYBE!! NAHH MAYBE IT MAKES SENSE
+        // If the peak is not found, the confidence is zero           
         if (!peak_found){
             coeff_sigmoid = 0.0f;
         }
@@ -824,8 +812,7 @@ if (values_win_C_File)
         samples_since_last_HR=0;
     }
 
-    
-    // Return the HR*10
+
     return HR;
 
 }

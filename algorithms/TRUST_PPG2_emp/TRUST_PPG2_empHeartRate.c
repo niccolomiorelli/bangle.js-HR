@@ -140,7 +140,7 @@ static int samples_since_last_HR = 0;                                           
 static accel_t acc_magnitude[WINDOW_LEN] = {0};                                      // Buffer for the magnitude of the acceleration signal
 float windowed_signal_in[WINDOW_LEN];                                               // For the fft and zero-padding
 float windowed_signal_out[WINDOW_LEN]; 
-static complex_number_float fft_input[WINDOW_LEN];   //Attenzione a questo 
+static complex_number_float fft_input[WINDOW_LEN];   
 static complex_number_float fft_input_padded[N_PAD];
 
 // State Machine
@@ -562,7 +562,7 @@ if (values_win_C_File)
         // Check if one peak is found
         bool peak_found = true;
         if (dominant_freq_index == 0.0f){
-            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one NB: ADD SOMETHING IN CASE OF THE FIRST WINDOW
+            dominant_freq_index = last_peaks_i[0];                        // If no peak is found, I take the last one
             peak_found = false;
         }
 
@@ -572,7 +572,7 @@ if (values_win_C_File)
             last_peaks[i] = last_peaks[i-1];
         }
         last_peaks_i[0] = dominant_freq_index;                                                       //Index of the FFT
-        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                 //In Hz
+        last_peaks[0] = (float)(dominant_freq_index*SAMPLING_FREQ / (float)N_PAD);                   //In Hz
 
 
 
@@ -636,7 +636,7 @@ if (values_win_C_File)
         // Weighted combination
         float coeff_sigmoid = ALPHA * c1_sigmoid + BETA * c2_sigmoid + GAMMA * c3;
 
-        // Penalization for transiztion state
+        // Penalization for transition state
         if (state == STATE_TRANSITION){
             coeff_sigmoid = coeff_sigmoid - 0.4f;
         }
@@ -644,7 +644,7 @@ if (values_win_C_File)
         if (coeff_sigmoid < 0.0f) coeff_sigmoid = 0.0f;
         if (coeff_sigmoid > 1.0f) coeff_sigmoid = 1.0f;
 
-        // If the peak is not found, the cinfidence is zero         //NB: MAYBE CHANGE THIS, I COULD SIMPLY REDUCE THE PREVIOUS CONFIDENCE MAYBE!! NAHH MAYBE IT MAKES SENSE
+        // If the peak is not found, the confidence is zero        
         if (!peak_found){
             coeff_sigmoid = 0.0f;
         }
@@ -730,7 +730,7 @@ if (values_win_C_File)
     }
 
     
-    // Return the HR*10
+
     return HR;
 
 }

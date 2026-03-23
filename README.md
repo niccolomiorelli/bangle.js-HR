@@ -16,7 +16,7 @@ Run:
 ```
 
 Input files have the following columns: 
- ms,ms (abs),PPG,ACCx,ACCy,ACCz,GT_bangle,GT_polar
+ ms,ms (abs),PPG,ACCx,ACCy,ACCz,GT_bangle,GT_polar(,GT_cosmed)
 
 Output files returns the following columns:
- time,Dummy,Espruino,FFT,Autocorrelation,Oxford,PanTompkins,Autocorrelation2,Algo1,FFT2,GT_Bangle,GT_polar
+ time,time (abs),Dummy,Espruino,FFT,Autocorrelation,Oxford,PanTompkins,Autocorrelation2,FFT2,TRUST_PPG1,TRUST_PPG2,TRUST_PPG3,TRUST_PPG4,GT_Bangle,GT_polar(,GT_cosmed)
