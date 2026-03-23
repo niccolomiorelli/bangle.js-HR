@@ -18,6 +18,9 @@ void fft2_heartrate_init();
  *
  * returns: the number of steps counted so far.
  */
+
+int main_algorithm_fft2(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz);
+
 int fft2_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz);
 
 #endif

@@ -279,7 +279,7 @@ static int HRMFilter_get(HRMFilter* f) {
      index = index != 0 ? index-1 : HRMFILTER_TAP_NUM-1;
      acc += (long long)f->history[index] * filter_taps[i];
    };
-   //int result = (int)(acc >> 4); //Nel caso del filtro precedente
+  //  int result = (int)(acc >> 4); //Nel caso del filtro precedente
    int result = (int)(acc >> 15);
    if (result > INT_MAX) result = INT_MAX; //I added this part
    if (result < INT_MIN) result = INT_MIN;

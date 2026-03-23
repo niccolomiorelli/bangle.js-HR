@@ -17,7 +17,6 @@
 #include "algorithms/fft2/fft2HeartRate.h"
 #include "algorithms/spectralTracking/spectralTrackingHeartRate.h"
 #include "algorithms/final/finalHeartRate.h"
-#include "algorithms/finalOpt/finalOptHeartRate.h"
 #include "algorithms/finalShort/finalShortHeartRate.h"
 #include "algorithms/debug1/debug1HeartRate.h"
 #include "algorithms/debug2/debug2HeartRate.h"
@@ -26,20 +25,21 @@
 #include "algorithms/debug5/debug5HeartRate.h"
 #include "algorithms/debug6/debug6HeartRate.h"
 #include "algorithms/debug7/debug7HeartRate.h"
-#include "algorithms/debug8/debug8HeartRate.h"
 #include "algorithms/debug9/debug9HeartRate.h"
 #include "algorithms/debug10/debug10HeartRate.h"
 #include "algorithms/debug11/debug11HeartRate.h"
-#include "algorithms/debug88/debug88HeartRate.h"
-#include "algorithms/debug89/debug89HeartRate.h"
-#include "algorithms/debug82/debug82HeartRate.h"
-#include "algorithms/debug882/debug882HeartRate.h"
-#include "algorithms/debug892/debug892HeartRate.h"
-
+#include "algorithms/TRUST_PPG1/TRUST_PPG1HeartRate.h"
+#include "algorithms/TRUST_PPG1_emp/TRUST_PPG1_empHeartRate.h"
+#include "algorithms/TRUST_PPG2/TRUST_PPG2HeartRate.h"  
+#include "algorithms/TRUST_PPG2_emp/TRUST_PPG2_empHeartRate.h"
+#include "algorithms/TRUST_PPG3/TRUST_PPG3HeartRate.h"
+#include "algorithms/TRUST_PPG3_emp/TRUST_PPG3_empHeartRate.h"
+#include "algorithms/TRUST_PPG4/TRUST_PPG4HeartRate.h"
+#include "algorithms/TRUST_PPG4_emp/TRUST_PPG4_empHeartRate.h"
 
 
 //Aggiungo
-#define algoN 9
+#define algoN 7
 
 typedef struct Algo
 {
@@ -59,19 +59,19 @@ Algo algos[algoN];
 
 void createAlgos()
 {
-    // algos[0] = (Algo){
-    //     .name = "Dummy",
-    //     .init = dummy_heartrate_init,
-    //     .get_heartrate = dummy_heartrate,
-    //     .total_time = 0,
-    // };
+    algos[0] = (Algo){
+        .name = "Dummy",
+        .init = dummy_heartrate_init,
+        .get_heartrate = dummy_heartrate,
+        .total_time = 0,
+    };
 
-    // algos[1] = (Algo){
-    //     .name = "Espruino",
-    //     .init = espruino_heartrate_init,
-    //     .get_heartrate = espruino_heartrate,
-    //     .total_time = 0,
-    // };
+    algos[1] = (Algo){
+        .name = "Espruino",
+        .init = espruino_heartrate_init,
+        .get_heartrate = espruino_heartrate,
+        .total_time = 0,
+    };
 
     // algos[2] = (Algo){
     //     .name = "FFT",
@@ -80,39 +80,39 @@ void createAlgos()
     //     .total_time = 0,
     // };
 
-    // algos[2] = (Algo){
-    //     .name = "Autocorrelation",
-    //     .init = autocorrelation_heartrate_init,
-    //     .get_heartrate = autocorrelation_heartrate,
-    //     .total_time = 0,
-    // };
+    algos[2] = (Algo){
+        .name = "Autocorrelation",
+        .init = autocorrelation_heartrate_init,
+        .get_heartrate = autocorrelation_heartrate,
+        .total_time = 0,
+    };
 
-    // algos[4] = (Algo){
-    //     .name = "Oxford",
-    //     .init = oxford_heartrate_init,
-    //     .get_heartrate = oxford_heartrate,
-    //     .total_time = 0,
-    // };
+    algos[3] = (Algo){
+        .name = "Oxford",
+        .init = oxford_heartrate_init,
+        .get_heartrate = oxford_heartrate,
+        .total_time = 0,
+    };
 
-    // algos[5] = (Algo){
-    //     .name = "PanTompkins",
-    //     .init = pantompkins_heartrate_init,
-    //     .get_heartrate = pantompkins_heartrate,
-    //     .total_time = 0,
-    // };
-    // algos[6] = (Algo){
-    //     .name = "Autocorrelation2",
-    //     .init = autocorrelation2_heartrate_init,
-    //     .get_heartrate = autocorrelation2_heartrate,
-    //     .total_time = 0,
-    // };
+    algos[4] = (Algo){
+        .name = "PanTompkins",
+        .init = pantompkins_heartrate_init,
+        .get_heartrate = pantompkins_heartrate,
+        .total_time = 0,
+    };
+    algos[5] = (Algo){
+        .name = "Autocorrelation2",
+        .init = autocorrelation2_heartrate_init,
+        .get_heartrate = autocorrelation2_heartrate,
+        .total_time = 0,
+    };
     // algos[7] = (Algo){
     //     .name = "Algo1",
     //     .init = algo1_heartrate_init,
     //     .get_heartrate = algo1_heartrate,
     //     .total_time = 0,
     // };
-    algos[0] = (Algo){
+    algos[6] = (Algo){
         .name = "FFT2",
         .init = fft2_heartrate_init,
         .get_heartrate = fft2_heartrate,
@@ -130,114 +130,56 @@ void createAlgos()
     //     .get_heartrate = final_heartrate,
     //     .total_time = 0,
     // };
-    algos[1] = (Algo){
-        .name = "FinalOpt",
-        .init = finalOpt_heartrate_init,
-        .get_heartrate = finalOpt_heartrate,
-        .total_time = 0,
-    };
-    // algos[12] = (Algo){
-    //     .name = "FinalShort",
-    //     .init = finalShort_heartrate_init,
-    //     .get_heartrate = finalShort_heartrate,
+    // algos[3] = (Algo){
+    //     .name = "BangleAlgorithm1",
+    //     .init = finalOpt_heartrate_init,
+    //     .get_heartrate = finalOpt_heartrate,
     //     .total_time = 0,
     // };
-    algos[2] = (Algo){
-         .name = "Debug1",
-         .init = debug1_heartrate_init,
-         .get_heartrate = debug1_heartrate,
-         .total_time = 0,
-    };
+    //  algos[4] = (Algo){
+    //     .name = "BangleAlgorithm2",
+    //     .init = debug89_heartrate_init,
+    //     .get_heartrate = debug89_heartrate,
+    //     .total_time = 0,
+    // };
+    // algos[5] = (Algo){
+    //      .name = "BangleAlgorithm3",
+    //      .init = debug88_heartrate_init,
+    //      .get_heartrate = debug88_heartrate,
+    //      .total_time = 0,
+    // };
     // algos[6] = (Algo){
-    //      .name = "Debug2",
-    //      .init = debug2_heartrate_init,
-    //      .get_heartrate = debug2_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[7] = (Algo){
-    //      .name = "Debug3",
-    //      .init = debug3_heartrate_init,
-    //      .get_heartrate = debug3_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[8] = (Algo){
-    //      .name = "Debug4",
-    //      .init = debug4_heartrate_init,
-    //      .get_heartrate = debug4_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[9] = (Algo){
-    //      .name = "Debug5",
-    //      .init = debug5_heartrate_init,
-    //      .get_heartrate = debug5_heartrate,
-    //      .total_time = 0,
-    // };
-    // algos[10] = (Algo){
-    //      .name = "Debug6",
-    //      .init = debug6_heartrate_init,
-    //      .get_heartrate = debug6_heartrate,
-    //      .total_time = 0,
+    //     .name = "BangleAlgorithm4",
+    //     .init = debug8_heartrate_init,
+    //     .get_heartrate = debug8_heartrate,
+    //     .total_time = 0,
     // };
     // algos[3] = (Algo){
-    //      .name = "Debug7",
-    //      .init = debug7_heartrate_init,
-    //      .get_heartrate = debug7_heartrate,
+    //      .name = "BangleAlgorithm1_emp",
+    //      .init = finalOpt2_heartrate_init,
+    //      .get_heartrate = finalOpt2_heartrate,
     //      .total_time = 0,
     // };
-    algos[3] = (Algo){
-         .name = "Version3_2",
-         .init = debug8_heartrate_init,
-         .get_heartrate = debug8_heartrate,
-         .total_time = 0,
-    };
-    // algos[5] = (Algo){
-    //      .name = "Debug9",
-    //      .init = debug9_heartrate_init,
-    //      .get_heartrate = debug9_heartrate,
-    //      .total_time = 0,
+    // algos[4] = (Algo){
+    //     .name = "BangleAlgorithm2_emp",
+    //     .init = debug892_heartrate_init,
+    //     .get_heartrate = debug892_heartrate,
+    //     .total_time = 0,
     // };
     // algos[5] = (Algo){
-    //      .name = "Debug10",
-    //      .init = debug10_heartrate_init,
-    //      .get_heartrate = debug10_heartrate,
+    //      .name = "BangleAlgorithm3_emp",
+    //      .init = debug882_heartrate_init,
+    //      .get_heartrate = debug882_heartrate,
     //      .total_time = 0,
     // };
     // algos[6] = (Algo){
-    //      .name = "Debug11",
-    //      .init = debug11_heartrate_init,
-    //      .get_heartrate = debug11_heartrate,
-    //      .total_time = 0,
+    //     .name = "BangleAlgorithm4_emp",
+    //     .init = debug82_heartrate_init,
+    //     .get_heartrate = debug82_heartrate,
+    //     .total_time = 0,
     // };
-    algos[4] = (Algo){
-         .name = "Version2_2",
-         .init = debug88_heartrate_init,
-         .get_heartrate = debug88_heartrate,
-         .total_time = 0,
-    };
-    algos[5] = (Algo){
-         .name = "Version1_2",
-         .init = debug89_heartrate_init,
-         .get_heartrate = debug89_heartrate,
-         .total_time = 0,
-    };
-    algos[6] = (Algo){
-         .name = "Version3_1",
-         .init = debug82_heartrate_init,
-         .get_heartrate = debug82_heartrate,
-         .total_time = 0,
-    };
-    algos[7] = (Algo){
-         .name = "Version2_1",
-         .init = debug882_heartrate_init,
-         .get_heartrate = debug882_heartrate,
-         .total_time = 0,
-    };
-    algos[8] = (Algo){
-         .name = "Version1_1",
-         .init = debug892_heartrate_init,
-         .get_heartrate = debug892_heartrate,
-         .total_time = 0,
-    };
+
+
 
 }
 
@@ -318,7 +260,7 @@ int main(int argc, char *argv[])
             fprintf(out_fp, ",");
         }
         fprintf(out_fp, "GT_Bangle,");
-        fprintf(out_fp, "GT_polar,");
+        fprintf(out_fp, "GT_polar");
         // fprintf(out_fp,"GT_cosmed");
         fprintf(out_fp, "\n");
 
@@ -342,11 +284,11 @@ int main(int argc, char *argv[])
 
                 int ms, ppg, accx, accy, accz;
 
-                int GT_bangle, GT_polar, GT_cosmed;
+                int GT_bangle, GT_polar, GT_cosmed; // GT_cosmed;
                 long long ms_abs;
 
                 // Parse integer values using sscanf
-                if (sscanf(line, "%d,%lld,%d,%d,%d,%d,%d,%d", &ms, &ms_abs, &ppg, &accx, &accy, &accz, &GT_bangle, &GT_polar) != 8) //c'era un 5
+                if (sscanf(line, "%d,%lld,%d,%d,%d,%d,%d,%d", &ms, &ms_abs, &ppg, &accx, &accy, &accz, &GT_bangle, &GT_polar) != 8) //c'era un 5 //(c'era GT_cosmed)
                 {
                     printf("Error parsing line: %s\n", line);
                     continue;
@@ -358,7 +300,7 @@ int main(int argc, char *argv[])
                 // }
 
                 // Process the extracted integer values
-                printf("Values: %d, %lld, %d, %d, %d, %d, %d, %d\n", ms, ms_abs, ppg, accx, accy, accz, GT_bangle, GT_polar);
+                printf("Values: %d, %lld, %d, %d, %d, %d, %d, %d\n", ms, ms_abs, ppg, accx, accy, accz, GT_bangle, GT_polar); //GT_cosmed
                 printf("Debug\n");
                 
 

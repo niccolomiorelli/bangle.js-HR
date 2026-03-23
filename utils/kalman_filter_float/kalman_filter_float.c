@@ -14,7 +14,7 @@
 #define MIN_CONF  0.001f   //Safety threshold for confidence
 #define THRESHOLD1_QK 8500.0f
 #define THRESHOLD2_QK 11000.0f
-#define MAX_DHR_HZ 0.05f
+#define MAX_DHR_HZ 0.08f
 #define STATE_STATIONARY 0
 #define STATE_TRANSITION 1
 #define STATE_MOTION_LOW 2
@@ -46,7 +46,7 @@ float find_Qk_float2(int state)
     if (state  == STATE_STATIONARY || state == STATE_TRANSITION || state == STATE_MOTION_LOW) //Riposo o camminata leggera
         var = 0.01f; //in Hz, so  bpm (referring to 2.5s windows)
     else if (state == STATE_MOTION_MEDIUM) //Camminata moderata
-        var = 0.02f; //#in Hz, so bom
+        var = 0.02f; //#in Hz, so 3bpm
     else
         var = 0.03f; //in Hz, so bpm
 
@@ -107,7 +107,7 @@ void kalman_HR_estimation_float(float HR_meas, float acc_rms, float conf, float*
 void kalman_HR_estimation_float2(float HR_meas, int state, float conf, float* HR_est, float* P)
 {
     float Qk = find_Qk_float2(state);
-    float Rk = find_Rk_float2(conf);
+    float Rk = find_Rk_float(conf);
 
     //Prediction
     float HR_old = *HR_est;
@@ -126,7 +126,7 @@ void kalman_HR_estimation_float2(float HR_meas, int state, float conf, float* HR
         *P = P_pred;
     }
 
-    // // HARD boundary: limit step-to-step change
+    // // // HARD boundary: limit step-to-step change
     // float d = *HR_est - HR_old;
     // d = clampf(d, -MAX_DHR_HZ, +MAX_DHR_HZ);
     // *HR_est = HR_old + d;
@@ -199,7 +199,7 @@ void kalman_HR_estimation_2measures_float2(float HR_meas_2m_PPG, float HR_meas_2
         *P_2m = P_pred;
     }
 
-    // HARD boundary: limit step-to-step change
+    // // HARD boundary: limit step-to-step change
     // float d = *HR_est_2m - HR_old_2m;
     // d = clampf(d, -MAX_DHR_HZ, +MAX_DHR_HZ);
     // *HR_est_2m = HR_old_2m  + d;

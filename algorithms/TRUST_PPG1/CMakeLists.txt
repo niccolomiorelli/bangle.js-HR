@@ -1,0 +1,2 @@
+add_library(TRUST_PPG1 TRUST_PPG1HeartRate.c)
+target_include_directories(TRUST_PPG1 PUBLIC include)

@@ -1,2 +1,0 @@
-add_library(debug88 debug88HeartRate.c)
-target_include_directories(debug88 PUBLIC include)

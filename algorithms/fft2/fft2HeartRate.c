@@ -85,6 +85,20 @@ double windowed_signal_out[WINDOW_LEN];
 static complex_double fft_input[WINDOW_LEN];
 static complex_double fft_input_padded[N_PAD];
 
+// For the linear interpolation
+typedef struct {
+    float ppg;
+    float accx;
+    float accy;
+    float accz;
+    uint32_t timestamp_ms;             
+} Sample;
+
+static ppg_t ppg_last;
+static accel_t accx_last;
+static accel_t accy_last;
+static accel_t accz_last;
+
 
 
 // Crea la finestra di Hann
@@ -112,6 +126,12 @@ void zero_pad(complex_double *in, complex_double *out, int N, int N_pad) {
 /// Initialise step counting
 void fft2_heartrate_init()
 {
+    // Linear interpolation
+    ppg_last=0;
+    accx_last=0;
+    accy_last=0;
+    accz_last=0;    
+
     HR = 0;
     samples_since_last_HR = 0;
     // Initialize the signal buffer to zeros
@@ -141,14 +161,14 @@ void fft2_heartrate_init()
 
 }
 
-int fft2_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+int main_algorithm_fft2(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
 
       
     // Applying the filter
     BPFilter_put(&bpFilter, ppg);
     ppg_t ppg_filtered = BPFilter_get(&bpFilter);
 
-    //Standardization
+    //Standardization (optional: in case just comment it and insert ppg_filtered in the signal_buffer, instead of ppg_standardized)
     rolling_stats_addValue((float)ppg_filtered, &stats_ppg);
     float mean_ppg = rolling_stats_get_mean(&stats_ppg);
     float var_ppg = rolling_stats_get_variance(&stats_ppg);
@@ -310,5 +330,55 @@ int fft2_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t ac
     
     // Return the HR*10
     return (int)(HR*10);
+
+}
+
+// --- LINEAR INTERPOLATION FUNCTION ---
+
+int fft2_heartrate(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+    int final_HR;
+    int HR_results[3] = {-1};
+    for(int i=0;i<3;i++){
+        HR_results[i] = -1;
+    }
+    if(delta_ms < 60){
+        HR_results[0] = main_algorithm_fft2(delta_ms,ppg,accx,accy,accz);
+        final_HR = HR_results[0];
+    }
+    else if ((delta_ms > 60) & (delta_ms < 100)){
+        int delta_ms_interp = delta_ms / 2;
+        int ppg_interp = (ppg + ppg_last) / 2;
+        int accx_interp = (accx + accx_last) / 2;
+        int accy_interp = (accy + accy_last) / 2;
+        int accz_interp = (accz + accz_last) / 2;
+
+        HR_results[0] = main_algorithm_fft2(delta_ms_interp, ppg_interp, accx_interp, accy_interp, accz_interp);
+        HR_results[1] = main_algorithm_fft2(delta_ms,ppg,accx,accy,accz);
+        final_HR = HR_results[1];
+    }
+    else{
+        int delta_ms_interp1 = delta_ms / 3;
+        int ppg_interp1 = ppg/3 + ppg_last*2/3;
+        int accx_interp1 = accx/3 + accx_last*2/3;
+        int accy_interp1 = accy/3 + accy_last*2/3;
+        int accz_interp1 = accz/3 + accz_last*2/3;
+        int delta_ms_interp2 = delta_ms*2/3;
+        int ppg_interp2 = ppg*2/3 + ppg_last/3;
+        int accx_interp2 = accx*2/3 + accx_last/3;
+        int accy_interp2 = accy*2/3 + accy_last/3;
+        int accz_interp2 = accz*2/3 + accz_last/3;
+
+        HR_results[0] = main_algorithm_fft2(delta_ms_interp1, ppg_interp1, accx_interp1, accy_interp1, accz_interp1);
+        HR_results[1] = main_algorithm_fft2(delta_ms_interp2, ppg_interp2, accx_interp2, accy_interp2, accz_interp2);
+        HR_results[2] = main_algorithm_fft2(delta_ms,ppg,accx,accy,accz);
+        final_HR = HR_results[2];
+    }
+    ppg_last = ppg;
+    accx_last = accx;
+    accy_last = accy;
+    accz_last = accz;
+
+    return final_HR;
+
 
 }
