@@ -1,2 +1,0 @@
-add_library(debug11 debug11HeartRate.c)
-target_include_directories(debug11 PUBLIC include)
