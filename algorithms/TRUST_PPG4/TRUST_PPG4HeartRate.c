@@ -138,8 +138,8 @@ static float signal_NLMS_buffer[WINDOW_LEN] = {0.0};                            
 static int signal_buffer_next_i = 0;                                                 // Buffer index
 static int samples_since_last_HR = 0;                                                // Counter of samples since last HR computation
 static accel_t acc_magnitude[WINDOW_LEN] = {0};                                      // Buffer for the magnitude of the acceleration signal
-float windowed_signal_in[WINDOW_LEN];                                               // For the fft and zero-padding
-float windowed_signal_out[WINDOW_LEN]; 
+static float windowed_signal_in[WINDOW_LEN];                                               // For the fft and zero-padding
+static float windowed_signal_out[WINDOW_LEN]; 
 static complex_number_float fft_input[WINDOW_LEN];
 static complex_number_float fft_input_padded[N_PAD];
 

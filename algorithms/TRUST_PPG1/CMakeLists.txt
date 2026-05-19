@@ -1,2 +1,3 @@
 add_library(TRUST_PPG1 TRUST_PPG1HeartRate.c)
 target_include_directories(TRUST_PPG1 PUBLIC include)
+target_link_libraries(TRUST_PPG1 bandpass_filter rolling_stats_float adaptive_filter_float fft_library_float kalman_filter_float)

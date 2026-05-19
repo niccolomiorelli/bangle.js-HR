@@ -73,8 +73,8 @@ static BPFilter bpFilter;
 //Standardization
 static Stats stats_ppg;
 
-double windowed_signal_in[WINDOW_LEN]; //For the windowing
-double windowed_signal_out[WINDOW_LEN]; 
+static double windowed_signal_in[WINDOW_LEN]; //For the windowing
+static double windowed_signal_out[WINDOW_LEN]; 
 static complex_number fft_input[WINDOW_LEN];
 static complex_number fft_input_padded[N_PAD];
 

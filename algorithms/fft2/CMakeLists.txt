@@ -1,2 +1,3 @@
 add_library(fft2 fft2HeartRate.c)
 target_include_directories(fft2 PUBLIC include)
+target_link_libraries(fft2 bandpass_filter rolling_stats fft_library)
