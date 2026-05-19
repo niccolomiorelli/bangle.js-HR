@@ -17,6 +17,7 @@ typedef struct {
 } complex_number_float;
 
 // util
+int buffer_index_plus_fftLib_float(int buffer_next_i, int plus, int max);
 int my_log2_fftLib_float(int N);
 int reverse_fftLib_float(int N, int n);
 

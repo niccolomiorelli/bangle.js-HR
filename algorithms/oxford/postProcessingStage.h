@@ -24,8 +24,9 @@ SOFTWARE.
 #ifndef POST_PROCESSING_STAGE_H
 #define POST_PROCESSING_STAGE_H
 #include "ringbuffer.h"
+#include <stdint.h>
 
-void initPostProcessingStage(ring_buffer_t *pInBuff, void (*stepCallback)(void));
+void initPostProcessingStage(ring_buffer_t *pInBuff, void (*stepCallback)(uint64_t));
 void postProcessingStage(void);
 void resetPostProcess(void);
 

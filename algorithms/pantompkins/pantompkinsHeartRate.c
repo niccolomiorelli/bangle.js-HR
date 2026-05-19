@@ -183,7 +183,7 @@ static BPFilter bpFilter;
 
 //Added variables
 static bool peak = false;
-static num_beats = 0;
+static int num_beats = 0;
 int HR;
 
 //For the median filter
@@ -192,6 +192,8 @@ int HR;
 #define HRM_MEDIAN_LEN 4
 static int pt_results[HRM_HIST_LEN] = {0};
 static int pt_results_index = 0;
+
+int output(ppg_t output, int interval, int interval_raw, int rravg1, int rravg2);
 
 void pantompkins_heartrate_init(){
 

@@ -511,7 +511,7 @@ if (values_win_C_File)
         // --- PerformingFFT ---
         // Preparing the buffer for the fft
         for (int i = 0; i < WINDOW_LEN; i++) {
-            int buffer_i = buffer_index_plus_fftLib(signal_buffer_next_i, i, WINDOW_LEN);
+            int buffer_i = buffer_index_plus_fftLib_float(signal_buffer_next_i, i, WINDOW_LEN);
             if (state == STATE_STATIONARY){
                 windowed_signal_in[i] = signal_PPG_buffer[buffer_i];
             } else {

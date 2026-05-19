@@ -73,17 +73,10 @@ static BPFilter bpFilter;
 //Standardization
 static Stats stats_ppg;
 
-// Complex number structure
-typedef struct
-{
-    double real;
-    double imag;
-} complex_double;
-
 double windowed_signal_in[WINDOW_LEN]; //For the windowing
 double windowed_signal_out[WINDOW_LEN]; 
-static complex_double fft_input[WINDOW_LEN];
-static complex_double fft_input_padded[N_PAD];
+static complex_number fft_input[WINDOW_LEN];
+static complex_number fft_input_padded[N_PAD];
 
 // For the linear interpolation
 typedef struct {
@@ -111,7 +104,7 @@ void apply_hann_window(double *input, double *windowed_output, int len) {
 
 
 //Padding function: it adds zeros to the input, creating another complex_double vector, so I have the two input ready to be tested
-void zero_pad(complex_double *in, complex_double *out, int N, int N_pad) {
+void zero_pad(complex_number *in, complex_number *out, int N, int N_pad) {
     for (int i = 0; i < N_pad; i++) {
         if (i < N) {
             out[i] = in[i];

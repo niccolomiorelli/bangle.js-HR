@@ -234,7 +234,7 @@ void weighted_average_with_confidence_trust_ppg3_emp(float* peaks, float* confid
 }
 
 // --- INIT FUNCTION --- 
-void debug882_heartrate_init()
+void trust_ppg3_emp_heartrate_init()
 {
     // Linear interpolation
     ppg_last=0;
@@ -336,7 +336,7 @@ void debug882_heartrate_init()
 // The function takes as input the samples already corrected for the missing values.
 // As output it gives the estimation of the heart rate on successives windows.
 
-int main_algorithm_debug882(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
+int main_algorithm_trust_ppg3_emp(time_delta_ms_t delta_ms, ppg_t ppg, accel_t accx, accel_t accy, accel_t accz){
 
     // Acceleration magnitude - raw
     accel_t acc_raw = (accel_t)sqrt(accx*accx + accy*accy + accz*accz);
@@ -570,7 +570,7 @@ if (values_win_C_File)
         // --- PerformingFFT ---
         // Preparing the buffer for the fft
         for (int i = 0; i < WINDOW_LEN; i++) {
-            int buffer_i = buffer_index_plus_fftLib(signal_buffer_next_i, i, WINDOW_LEN);
+            int buffer_i = buffer_index_plus_fftLib_float(signal_buffer_next_i, i, WINDOW_LEN);
             // windowed_signal_in[i] = signal_NLMS_buffer[buffer_i];
             if (state == STATE_STATIONARY){
                 windowed_signal_in[i] = signal_PPG_buffer[buffer_i];
@@ -769,10 +769,10 @@ if (values_win_C_File)
             // Compute the weighted average of the last peaks with their confidence
             float HR_freq_average;
             float c_average;
-            weighted_average_with_confidence_debug882(last_peaks, last_confs, N_LAST_SAVED, &HR_freq_average, &c_average);
+            weighted_average_with_confidence_trust_ppg3_emp(last_peaks, last_confs, N_LAST_SAVED, &HR_freq_average, &c_average);
 
             // Update the model
-            update_HR_model_from_ACC_debug882(HR_freq_average*60, HR_ACC, &a, &b, state);
+            update_HR_model_from_ACC_trust_ppg3_emp(HR_freq_average*60, HR_ACC, &a, &b, state);
 
         }
         

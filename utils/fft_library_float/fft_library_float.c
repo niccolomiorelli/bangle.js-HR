@@ -8,14 +8,19 @@
 #endif
 
 // ---------- utils ----------
-static int my_log2_fftLib_float(int N) {
+int buffer_index_plus_fftLib_float(int buffer_next_i, int plus, int max)
+{
+    return (buffer_next_i + plus) % max;
+}
+
+int my_log2_fftLib_float(int N) {
     int k = N, i = 0;
     while (k) { k >>= 1; i++; }
     return i - 1;
 }
 
-static int reverse_fftLib_float(int N, int n) {
-    int log2N = my_log2_fftLib(N);
+int reverse_fftLib_float(int N, int n) {
+    int log2N = my_log2_fftLib_float(N);
     int j, p = 0;
     for (j = 1; j <= log2N; j++) {
         if (n & (1 << (log2N - j)))
@@ -27,7 +32,7 @@ static int reverse_fftLib_float(int N, int n) {
 // In-place bit-reversal
 static void bitrev_inplace(complex_number_float *f, int N) {
     for (int i = 0; i < N; ++i) {
-        int j = reverse_fftLib(N, i);
+        int j = reverse_fftLib_float(N, i);
         if (j > i) {
             complex_number_float t = f[i];
             f[i] = f[j];
