@@ -1,4 +1,4 @@
-Heart rate algorithms for Bangle.js
+Pulse rate algorithms for Bangle.js
 ==================================
 
 This repository contains a collection of heart rate estimation algorithms developed for Bangle.js recordings. They are extended to work also on Empatica EmbracePlus recordings ("_emp" folders).
